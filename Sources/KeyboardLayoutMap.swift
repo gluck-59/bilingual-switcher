@@ -47,6 +47,57 @@ class KeyboardLayoutMap {
     /// Shift modifier state for UCKeyTranslate: (shiftKey >> 8) & 0xFF.
     private static let shiftModifier: UInt32 = (UInt32(shiftKey) >> 8) & 0xFF
 
+    /// Cached physical keyboard type (ANSI=40, ISO=41, JIS=43).
+    private static var cachedKeyboardType: UInt16?
+
+    /// Path to the system plist that records each physical keyboard's type.
+    private static let keyboardTypePlistPath = "/Library/Preferences/com.apple.keyboardtype.plist"
+
+    /// Returns the physical keyboard type (ANSI=40, ISO=41, JIS=43) reliably.
+    ///
+    /// `LMGetKbdType()` is context-dependent — in a GUI app it can return a
+    /// garbage value (e.g. a multiple of 3) that makes `UCKeyTranslate` read
+    /// layouts as the wrong physical type, swapping `[`/`]` and similar keys.
+    /// The authoritative source is the system's `com.apple.keyboardtype.plist`,
+    /// which macOS populates when the keyboard is set up. We read that first
+    /// and fall back to `LMGetKbdType()` only if it's unavailable.
+    static func physicalKeyboardType() -> UInt16 {
+        lock.lock()
+        if let cached = cachedKeyboardType {
+            lock.unlock()
+            return cached
+        }
+        lock.unlock()
+
+        let type = plistKeyboardType() ?? UInt16(LMGetKbdType())
+
+        lock.lock()
+        cachedKeyboardType = type
+        lock.unlock()
+        return type
+    }
+
+    /// Reads the most common keyboard type from the system keyboardtype plist.
+    private static func plistKeyboardType() -> UInt16? {
+        guard let data = try? Data(contentsOf: URL(fileURLWithPath: keyboardTypePlistPath)),
+              let plist = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil),
+              let dict = plist as? [String: Any],
+              let keyboardTypes = dict["keyboardtype"] as? [String: Any] else {
+            return nil
+        }
+
+        var counts: [Int: Int] = [:]
+        for (_, value) in keyboardTypes {
+            if let type = value as? Int {
+                counts[type, default: 0] += 1
+            }
+        }
+        guard let (mostCommon, _) = counts.max(by: { $0.value < $1.value }) else {
+            return nil
+        }
+        return UInt16(mostCommon)
+    }
+
     // MARK: - Layout Enumeration
 
     /// Returns all installed keyboard layouts (excludes input methods like CJK).
@@ -156,7 +207,7 @@ class KeyboardLayoutMap {
             return [:]
         }
         let layoutData = Unmanaged<CFData>.fromOpaque(dataRef).takeUnretainedValue() as Data
-        let keyboardType = UInt32(LMGetKbdType())
+        let keyboardType = UInt32(physicalKeyboardType())
 
         var map: [CharacterMapKey: Character] = [:]
 
@@ -247,7 +298,7 @@ class KeyboardLayoutMap {
             return
         }
         let layoutData = Unmanaged<CFData>.fromOpaque(dataRef).takeUnretainedValue() as Data
-        let keyboardType = UInt32(LMGetKbdType())
+        let keyboardType = UInt32(physicalKeyboardType())
 
         for deadKeyCode: UInt16 in 0...127 {
             for deadShift in [false, true] {

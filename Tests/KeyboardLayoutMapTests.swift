@@ -9,6 +9,16 @@ final class KeyboardLayoutMapTests: XCTestCase {
         XCTAssertFalse(layouts.isEmpty, "Should find at least one keyboard layout")
     }
 
+    func testPhysicalKeyboardTypeIsValid() {
+        let type = KeyboardLayoutMap.physicalKeyboardType()
+        // Valid Apple keyboard types: ANSI=40, ISO=41, JIS=43 (and a few
+        // legacy variants). A garbage value (e.g. a multiple of 3) would mean
+        // LMGetKbdType() leaked through and layouts would be read wrong.
+        let valid: Set<UInt16> = [40, 41, 43, 44, 46, 47, 49, 50]
+        XCTAssertTrue(valid.contains(type),
+                      "physicalKeyboardType() returned \(type), expected a valid ANSI/ISO/JIS type")
+    }
+
     func testInstalledLayoutsContainUSQWERTY() {
         let layouts = KeyboardLayoutMap.installedLayouts()
         let hasUS = layouts.contains { $0.id.contains("US") || $0.id.contains("ABC") || $0.languages.contains("en") }
