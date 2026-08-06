@@ -62,7 +62,7 @@ Impact:
 
 - Your release artifact depends on where it was built.
 - A local Intel build is not the same product as a CI Apple Silicon build.
-- If you advertise `macOS 13+` without an architecture note, users will reasonably expect support across both Intel and Apple Silicon Macs that run Ventura or newer.
+- If you advertise `macOS 12+` without an architecture note, users will reasonably expect support across both Intel and Apple Silicon Macs that run Monterey or newer.
 
 Recommendation:
 

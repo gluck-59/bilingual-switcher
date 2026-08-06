@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://github.com/komandakycto/bilingual-switcher/actions/workflows/ci.yml"><img src="https://github.com/komandakycto/bilingual-switcher/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://github.com/komandakycto/bilingual-switcher/releases/latest"><img src="https://img.shields.io/github/v/release/komandakycto/bilingual-switcher?style=flat-square&label=download" alt="Download"></a>
-  <img src="https://img.shields.io/badge/platform-macOS%2013%2B-blue?style=flat-square" alt="Platform">
+  <img src="https://img.shields.io/badge/platform-macOS%2012%2B-blue?style=flat-square" alt="Platform">
   <a href="LICENSE"><img src="https://img.shields.io/github/license/komandakycto/bilingual-switcher?style=flat-square" alt="License"></a>
 </p>
 
@@ -127,8 +127,12 @@ With 3+ layouts installed, the app tracks the two you most recently switched bet
 
 ## Requirements
 
-- macOS 13.0 (Ventura) or later
+- macOS 12.0 (Monterey) or later
 - Accessibility permission (prompted on first launch)
+
+> **Launch at Login on macOS 12:** the automatic "Launch at Login" option requires
+> macOS 13+. On macOS 12 the checkbox is saved but has no effect — add the app
+> manually via System Settings → Users & Groups → Login Items instead.
 
 ## Contributing
 
