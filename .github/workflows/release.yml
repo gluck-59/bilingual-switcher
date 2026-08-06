@@ -69,14 +69,14 @@ jobs:
           VERSION=${{ steps.version.outputs.version }}
           ED_SIG=${{ steps.sign.outputs.signature }}
           ED_LEN=${{ steps.sign.outputs.length }}
-          URL="https://github.com/komandakycto/bilingual-switcher/releases/download/${GITHUB_REF_NAME}/BilingualSwitcher.zip"
+          URL="https://github.com/gluck-59/bilingual-switcher/releases/download/${GITHUB_REF_NAME}/BilingualSwitcher.zip"
 
           cat > docs/appcast.xml << 'XMLEOF'
           <?xml version="1.0" encoding="utf-8"?>
           <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
             <channel>
               <title>Bilingual Switcher</title>
-              <link>https://github.com/komandakycto/bilingual-switcher</link>
+              <link>https://github.com/gluck-59/bilingual-switcher</link>
               <language>en</language>
             </channel>
           </rss>
@@ -89,7 +89,7 @@ jobs:
         run: |
           VERSION=${{ steps.version.outputs.version }}
           SHA256=$(shasum -a 256 build/BilingualSwitcher.zip | cut -d' ' -f1)
-          URL="https://github.com/komandakycto/bilingual-switcher/releases/download/${GITHUB_REF_NAME}/BilingualSwitcher.zip"
+          URL="https://github.com/gluck-59/bilingual-switcher/releases/download/${GITHUB_REF_NAME}/BilingualSwitcher.zip"
 
           mkdir -p Casks
           cat > Casks/bilingual-switcher.rb << EOF
@@ -100,7 +100,7 @@ jobs:
             url "${URL}"
             name "Bilingual Switcher"
             desc "Convert selected text between keyboard layouts with a hotkey"
-            homepage "https://github.com/komandakycto/bilingual-switcher"
+            homepage "https://github.com/gluck-59/bilingual-switcher"
 
             app "BilingualSwitcher.app"
 
