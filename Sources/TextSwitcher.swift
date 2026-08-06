@@ -168,6 +168,21 @@ class TextSwitcher {
         pasteboard: NSPasteboard,
         frontBundleID: String?
     ) {
+        // The first Cmd+C may have copied just after the poll window timed
+        // out. If the clipboard has text, use it directly instead of
+        // disturbing the selection.
+        if let text = pasteboard.string(forType: .string), !text.isEmpty {
+            Self.diag("first copy landed late — converting directly")
+            self.completeConversion(
+                copied: true,
+                copiedText: text,
+                savedItems: savedItems,
+                pasteboard: pasteboard,
+                frontBundleID: frontBundleID
+            )
+            return
+        }
+
         Self.diag("no selection — selecting previous word")
 
         // Option+Shift+Left Arrow selects the word before the cursor in every
@@ -204,7 +219,17 @@ class TextSwitcher {
     ) {
         Self.diag("poll completion copied=\(copied) textLen=\(copiedText?.count ?? -1)")
 
-        guard copied, let text = copiedText, !text.isEmpty else {
+        // A slow copy can land just after the poll window closed, leaving the
+        // poll reporting no change while the clipboard actually holds text.
+        // Fall back to a final read before concluding there is nothing.
+        let text: String?
+        if copied, let copiedText = copiedText, !copiedText.isEmpty {
+            text = copiedText
+        } else {
+            text = pasteboard.string(forType: .string)
+        }
+
+        guard let text, !text.isEmpty else {
             Self.diag("bail — no text from clipboard")
             // Cmd+C put nothing on the clipboard — almost always because no
             // text was selected, or the focused app grabbed the mouse so the
@@ -272,69 +297,6 @@ class TextSwitcher {
         if UserDefaults.standard.switchLayoutAfterConversion {
             InputSourceSwitcher.switchTo(direction: direction)
         }
-    }
-
-    // MARK: - Pasteboard helpers (static + internal — tests drive them directly)
-
-    /// Snapshot every type+data pair on the pasteboard so we can re-create the
-    /// items later. Reads happen synchronously on the caller's queue.
-    static func snapshot(of pasteboard: NSPasteboard) -> [[NSPasteboard.PasteboardType: Data]] {
-        return pasteboard.pasteboardItems?.map { item -> [NSPasteboard.PasteboardType: Data] in
-            var dict: [NSPasteboard.PasteboardType: Data] = [:]
-            for type in item.types {
-                if let data = item.data(forType: type) {
-                    dict[type] = data
-                }
-            }
-            return dict
-        } ?? []
-    }
-
-    /// Re-populate the pasteboard with the previously snapshotted items.
-    /// An empty `items` array is a valid saved state — it means the original
-    /// pasteboard was empty, and "restoring" must put it back into that
-    /// state (clear it), not no-op and leave intermediate Cmd+C content
-    /// behind.
-    static func restoreClipboard(
-        _ items: [[NSPasteboard.PasteboardType: Data]],
-        to pasteboard: NSPasteboard
-    ) {
-        pasteboard.clearContents()
-        guard !items.isEmpty else { return }
-        let pasteboardItems = items.map { dict -> NSPasteboardItem in
-            let item = NSPasteboardItem()
-            for (type, data) in dict {
-                item.setData(data, forType: type)
-            }
-            return item
-        }
-        pasteboard.writeObjects(pasteboardItems)
-    }
-
-    /// Wait on the main queue (without blocking it) for `pasteboard.changeCount`
-    /// to differ from `initialChangeCount`, or for `timeout` to elapse.
-    /// `completion` is always called exactly once, on the main queue, with
-    /// `true` if the clipboard changed and `false` on timeout.
-    static func pollForClipboardChange(
-        initialChangeCount: Int,
-        timeout: TimeInterval,
-        pollInterval: TimeInterval,
-        pasteboard: NSPasteboard,
-        completion: @escaping (Bool) -> Void
-    ) {
-        let deadline = Date().addingTimeInterval(timeout)
-        func poll() {
-            if pasteboard.changeCount != initialChangeCount {
-                completion(true)
-                return
-            }
-            if Date() >= deadline {
-                completion(false)
-                return
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + pollInterval, execute: poll)
-        }
-        poll()
     }
 
     // MARK: - Modifier-release wait
