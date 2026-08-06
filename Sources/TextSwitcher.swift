@@ -176,6 +176,48 @@ class TextSwitcher {
             pollInterval: Self.copyPollInterval,
             pasteboard: pasteboard
         ) { didChange in
+            if didChange {
+                self.completeConversion(
+                    copied: true,
+                    copiedText: pasteboard.string(forType: .string),
+                    savedItems: savedItems,
+                    pasteboard: pasteboard,
+                    frontBundleID: frontBundleID
+                )
+            } else {
+                self.retryWithLastWordSelection(
+                    savedItems: savedItems,
+                    pasteboard: pasteboard,
+                    frontBundleID: frontBundleID
+                )
+            }
+        }
+    }
+
+    /// No text was selected, so Cmd+C copied nothing. Select the word before
+    /// the cursor and retry the copy, converting the last typed word instead.
+    private func retryWithLastWordSelection(
+        savedItems: [[NSPasteboard.PasteboardType: Data]],
+        pasteboard: NSPasteboard,
+        frontBundleID: String?
+    ) {
+        Self.diag("no selection — selecting previous word")
+
+        // Option+Shift+Left Arrow selects the word before the cursor in every
+        // Cocoa text view and most editors.
+        Self.simulateKeyStroke(keyCode: CGKeyCode(kVK_LeftArrow), flags: [.maskAlternate, .maskShift])
+        Thread.sleep(forTimeInterval: 0.05)
+
+        let baselineChangeCount = pasteboard.changeCount
+        Self.simulateKeyStroke(keyCode: CGKeyCode(kVK_ANSI_C), flags: .maskCommand)
+        Self.diag("posted select-word + Cmd+C, baselineChangeCount=\(baselineChangeCount)")
+
+        Self.pollForClipboardChange(
+            initialChangeCount: baselineChangeCount,
+            timeout: Self.copyTimeout,
+            pollInterval: Self.copyPollInterval,
+            pasteboard: pasteboard
+        ) { didChange in
             self.completeConversion(
                 copied: didChange,
                 copiedText: pasteboard.string(forType: .string),
