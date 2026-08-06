@@ -6,10 +6,10 @@ class TextSwitcher {
     // MARK: - Tunables
 
     /// Maximum time to wait for the focused app to fill the pasteboard after
-    /// Cmd+C. Polling stops as soon as `changeCount` ticks. 500 ms is generous
-    /// for slow Electron apps; well under the user-perceived latency budget
-    /// for a hotkey gesture.
-    private static let copyTimeout: TimeInterval = 0.5
+    /// Cmd+C. Polling stops as soon as `changeCount` ticks. Chromium apps copy
+    /// in ~10–50 ms normally, up to ~150 ms under renderer load; 150 ms keeps
+    /// the no-selection path snappy while retaining that margin.
+    private static let copyTimeout: TimeInterval = 0.15
 
     /// Interval between `changeCount` reads while waiting on Cmd+C. Reads are
     /// cheap, but each requeues `asyncAfter`, which has its own overhead.
