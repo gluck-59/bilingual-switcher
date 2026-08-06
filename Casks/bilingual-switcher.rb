@@ -1,8 +1,8 @@
 cask "bilingual-switcher" do
-  version "1.2.0"
-  sha256 "f3d0469a6c277386f9f23b6e8335642c701a94368a8259131c327d1f2d9b597f"
+  version "1.0.1"
+  sha256 "9c0c8f77d80cdb067d4d3c31017dfbada3cd134d63454abc6c370de0b2c20f67"
 
-  url "https://github.com/gluck-59/bilingual-switcher/releases/download/v1.2.0/BilingualSwitcher.zip"
+  url "https://github.com/gluck-59/bilingual-switcher/releases/download/v1.0.1/BilingualSwitcher.zip"
   name "Bilingual Switcher"
   desc "Convert selected text between keyboard layouts with a hotkey"
   homepage "https://github.com/gluck-59/bilingual-switcher"

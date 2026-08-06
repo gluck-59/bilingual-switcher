@@ -4,5 +4,14 @@
     <title>Bilingual Switcher</title>
     <link>https://github.com/gluck-59/bilingual-switcher</link>
     <language>en</language>
-  </channel>
+    <item>
+        <title>Version 1.0.1</title>
+        <sparkle:version>1.0.1</sparkle:version>
+        <sparkle:shortVersionString>1.0.1</sparkle:shortVersionString>
+        <enclosure url="https://github.com/gluck-59/bilingual-switcher/releases/download/v1.0.1/BilingualSwitcher.zip"
+                   sparkle:edSignature="RS3lRmQKSvRXRjf2d5GLPKtV2pY+q8U7psj5JN8pLc4i918pGIEaCXNQHVVntYWsIj9m8B/tS5Shb2csgDzaDw=="
+                   length="2427539"
+                   type="application/octet-stream"/>
+      </item>
+    </channel>
 </rss>
