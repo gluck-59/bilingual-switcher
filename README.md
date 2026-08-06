@@ -1,143 +1,34 @@
-<p align="center">
-  <img src="docs/social_preview.png" alt="Bilingual Switcher" width="640">
-</p>
+# Bilingual Switcher (форк)
 
-<p align="center">
-  <a href="https://github.com/komandakycto/bilingual-switcher/actions/workflows/ci.yml"><img src="https://github.com/komandakycto/bilingual-switcher/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://github.com/komandakycto/bilingual-switcher/releases/latest"><img src="https://img.shields.io/github/v/release/komandakycto/bilingual-switcher?style=flat-square&label=download" alt="Download"></a>
-  <img src="https://img.shields.io/badge/platform-macOS%2012%2B-blue?style=flat-square" alt="Platform">
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/komandakycto/bilingual-switcher?style=flat-square" alt="License"></a>
-</p>
+Форк проекта [Bilingual Switcher](https://github.com/komandakycto/bilingual-switcher) от автора komandakycto, распространяется по лицензии [MIT](LICENSE).
 
-<p align="center">
-A lightweight macOS menu bar app that fixes text typed in the wrong keyboard layout —<br>
-like Punto Switcher, but for <em>any</em> language pair.
-</p>
+Приложение для macOS в строке меню: конвертирует выделенный текст между любыми двумя установленными раскладками клавиатуры (например, английская ↔ русская) по глобальной горячей клавише.
 
----
+## Внесённые изменения
 
-Ever type a whole sentence only to realize your keyboard was in the wrong language?
+1. **Повторная конвертация с выбором последнего слова** — если текст не выделен, горячая клавиша теперь выделяет предыдущее слово и конвертирует его, а не просто издаёт звуковой сигнал.
+2. **Новая иконка в строке меню** — две буквы «ЯR» с увеличенными глифами.
+3. **Стабильная подпись кода** — приложение подписывается самоподписанным сертификатом «BilingualSwitcher Dev», благодаря чему разрешение macOS на доступность (TCC) переживает пересборки (раньше ad-hoc подпись отзывала его при каждой переустановке).
+4. **Локализация интерфейса на русский** — окно настроек, меню, алерты и окно «О программе» переведены на русский.
+5. **Поддержка macOS 12** — минимальная версия снижена с macOS 13 до macOS 12 (Monterey). Примечание: «Запуск при входе в систему» требует macOS 13+; на macOS 12 приложение добавляется вручную.
 
-`Ghbdtn vbh!` instead of `Привет мир!` — or `Руддщ Цщкдв!` instead of `Hello World!`
+## Оригинальный проект
 
-Select the text, press **⌥⌘S**, and it's instantly fixed. Works with any language pair — not just English and Russian.
+- GitHub: https://github.com/komandakycto/bilingual-switcher
+- Лицензия: MIT — см. [LICENSE](LICENSE)
 
-> **Русский:** Bilingual Switcher — альтернатива Punto Switcher для macOS. Выделил текст, нажал хоткей — раскладка исправлена (`ghbdtn` → `привет`). Работает с любой парой языков, не только русский и английский. См. раздел [Install](#install) для установки через Homebrew или DMG.
+## Сборка
 
-<p align="center">
-  <img src="docs/demo.gif" alt="Demo: typing in the wrong layout in Slack, then fixing it with one hotkey" width="720">
-</p>
-
-## Features
-
-- **Instant conversion** — select text, press hotkey, done
-- **Any language pair** — dynamically reads your installed keyboard layouts via macOS APIs, no hardcoded mappings
-- **Auto-detection** — detects which layout produced the text and converts to the other
-- **Works everywhere** — GUI apps, terminals (iTerm, Terminal.app, Claude Code), text editors
-- **Configurable hotkey** — set any key combination in Preferences, or a modifier-only tap like ⌥⌘ (default: ⌥⌘S)
-- **Auto-switch keyboard layout** — optionally switch to the target language after conversion
-- **Launch at Login** — start automatically with macOS
-- **Auto-updates** — built-in update checking via Sparkle
-- **Privacy-first** — no telemetry, no data collection; only network access is optional update checks
-- **Lightweight** — native Swift, no Electron, minimal resource usage
-
-## Supported Languages
-
-The app works with **any keyboard layout installed on your Mac** that uses physical key mapping — this covers most languages:
-
-**Tested:** English, Russian, Ukrainian, French, German, Spanish, Portuguese, Italian
-
-**Should work (same mechanism):** Polish, Czech, Turkish, Swedish, Norwegian, Danish, Dutch, Romanian, Hungarian, and any other standard keyboard layout
-
-**Not supported:** CJK input methods (Chinese, Japanese, Korean) — these use composing engines, not direct key mapping
-
-## Install
-
-### Homebrew (recommended)
+Требуется Xcode Command Line Tools (`xcode-select --install`).
 
 ```bash
-brew tap komandakycto/bilingual-switcher https://github.com/komandakycto/bilingual-switcher.git
-brew install --cask bilingual-switcher
-```
-
-Homebrew automatically strips the macOS quarantine flag — the app opens without Gatekeeper prompts.
-
-### Manual download
-
-Download the latest `.dmg` from [Releases](https://github.com/komandakycto/bilingual-switcher/releases), open it, and drag the app to Applications.
-
-**Gatekeeper notice:** The app is ad-hoc signed (not notarized with Apple). Before first launch:
-
-```bash
-xattr -cr /Applications/BilingualSwitcher.app
-```
-
-Or: try to open the app, get blocked, then go to **System Settings → Privacy & Security** → scroll down → **Open Anyway**.
-
-You can verify the download integrity with SHA256 checksums from the [release page](https://github.com/komandakycto/bilingual-switcher/releases).
-
-### Build from source
-
-Requires Xcode Command Line Tools (`xcode-select --install`).
-
-```bash
-git clone https://github.com/komandakycto/bilingual-switcher.git
+git clone https://github.com/gluck-59/bilingual-switcher.git
 cd bilingual-switcher
-make setup     # downloads Sparkle framework
-make
-make install   # copies to /Applications
+make setup     # загрузка фреймворка Sparkle
+make           # сборка универсального бинарника → build/BilingualSwitcher.app
+make install   # копирование в /Applications
 ```
 
-## Usage
-
-1. **Launch** the app — it appears as an icon in the menu bar
-2. **Grant Accessibility permission** when prompted (required to read/replace selected text)
-3. **Select** the wrongly-typed text in any app
-4. **Press the hotkey** (default: `⌥⌘S` — Option + Command + S)
-5. The text is converted in place
-
-> **Selecting text inside terminal TUIs (Claude Code, vim, htop, lazygit):** full-screen terminal apps capture the mouse, so a plain click-drag is sent to the app instead of creating a selection — leaving nothing for the hotkey to copy. Hold **Shift** while dragging in **kitty**, or **Option** in **iTerm2**, to force a real terminal selection (other terminals have a similar modifier to bypass mouse reporting), then press the hotkey. If you press the hotkey with nothing selected, the app beeps.
-
-### Changing the hotkey
-
-Menu bar icon → Preferences → click the shortcut field → press your desired combination → Save.
-
-You can also bind a **modifier-only** combo like ⌥⌘ — press and release the modifiers together with no other key, Punto Switcher style. Two or more modifiers are required, and it fires only on a clean release, so ⌥⌘C and other real shortcuts still work as usual.
-
-### Examples
-
-| You typed | You get |
-|-----------|---------|
-| `Ghbdtn vbh!` | `Привет мир!` |
-| `Руддщ Цщкдв!` | `Hello World!` |
-| `Dctv ghbdtn` | `Всем привет` |
-| `Рфззн Ишкесфн` | `Happy Birthday` |
-
-## How it works
-
-The app uses the macOS `UCKeyTranslate` API to read the character map of every keyboard layout installed on your system. When triggered:
-
-1. Copies the selected text (simulates ⌘C)
-2. Scores the text against each installed layout to detect which one produced it
-3. Converts each character via physical key codes: source layout char → key code → target layout char
-4. Deletes the original and pastes the result
-5. Restores your original clipboard
-
-With 3+ layouts installed, the app tracks the two you most recently switched between and converts within that pair.
-
-## Requirements
-
-- macOS 12.0 (Monterey) or later
-- Accessibility permission (prompted on first launch)
-
-> **Launch at Login on macOS 12:** the automatic "Launch at Login" option requires
-> macOS 13+. On macOS 12 the checkbox is saved but has no effect — add the app
-> manually via System Settings → Users & Groups → Login Items instead.
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for build instructions and guidelines.
-
-## License
+## Лицензия
 
 [MIT](LICENSE)
