@@ -9,7 +9,7 @@ class AboutWindowController: NSWindowController {
             backing: .buffered,
             defer: false
         )
-        window.title = "About Bilingual Switcher"
+        window.title = "О программе Bilingual Switcher"
         window.center()
         window.isReleasedWhenClosed = false
 
@@ -40,14 +40,17 @@ class AboutWindowController: NSWindowController {
         contentView.addSubview(nameLabel)
 
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0"
-        let versionLabel = NSTextField(labelWithString: "Version \(version)")
+        let versionLabel = NSTextField(labelWithString: "Версия \(version)")
         versionLabel.font = .systemFont(ofSize: 12)
         versionLabel.textColor = .secondaryLabelColor
         versionLabel.alignment = .center
         versionLabel.frame = NSRect(x: 20, y: 68, width: 280, height: 18)
         contentView.addSubview(versionLabel)
 
-        let descLabel = NSTextField(labelWithString: "Convert selected text between any two\ninstalled keyboard layouts with a hotkey.")
+        let descLabel = NSTextField(labelWithString:
+            "Конвертирует выделенный текст между любыми двумя\n"
+            + "установленными раскладками клавиатуры по горячей клавише."
+        )
         descLabel.font = .systemFont(ofSize: 11)
         descLabel.textColor = .secondaryLabelColor
         descLabel.alignment = .center

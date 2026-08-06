@@ -477,10 +477,10 @@ class TextSwitcher {
 
     private func showSingleLayoutNotification() {
         let alert = NSAlert()
-        alert.messageText = "Two Keyboard Layouts Required"
+        alert.messageText = "Требуются две раскладки клавиатуры"
         alert.informativeText = """
-            Add a second keyboard layout in System Settings → Keyboard → \
-            Input Sources to enable text conversion.
+            Добавьте вторую раскладку клавиатуры в Системных настройках → Клавиатура → \
+            Источники ввода, чтобы включить конвертацию текста.
             """
         alert.alertStyle = .informational
         alert.addButton(withTitle: "OK")
@@ -489,13 +489,13 @@ class TextSwitcher {
 
     /// Title of the shared accessibility-permission alert. Exposed so a unit
     /// test can assert the wording without running a modal.
-    static let accessibilityAlertTitle = "Accessibility Permission Required"
+    static let accessibilityAlertTitle = "Требуется разрешение на доступность"
 
     /// Body of the shared accessibility-permission alert (System Settings →
     /// Privacy & Security → Accessibility).
     static let accessibilityAlertBody = """
-        Grant access in System Settings \u{2192} Privacy & Security \u{2192} Accessibility, \
-        then restart the app.
+        Предоставьте доступ в Системных настройках \u{2192} Конфиденциальность и безопасность \u{2192} Доступность, \
+        затем перезапустите приложение.
         """
 
     /// Presents the shared accessibility-permission alert. Static so both the

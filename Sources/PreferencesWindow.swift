@@ -21,7 +21,7 @@ class PreferencesWindowController: NSWindowController {
             backing: .buffered,
             defer: false
         )
-        window.title = "Preferences"
+        window.title = "Настройки"
         window.center()
         window.isReleasedWhenClosed = false
 
@@ -42,12 +42,12 @@ class PreferencesWindowController: NSWindowController {
     }
 
     private func setupHotkeySection(in contentView: NSView) {
-        let hotkeyLabel = NSTextField(labelWithString: "Hotkey")
+        let hotkeyLabel = NSTextField(labelWithString: "Горячая клавиша")
         hotkeyLabel.font = .systemFont(ofSize: 13, weight: .semibold)
         hotkeyLabel.frame = NSRect(x: 20, y: 260, width: 200, height: 20)
         contentView.addSubview(hotkeyLabel)
 
-        let recorderLabel = NSTextField(labelWithString: "Shortcut:")
+        let recorderLabel = NSTextField(labelWithString: "Сочетание:")
         recorderLabel.frame = NSRect(x: 20, y: 228, width: 80, height: 24)
         recorderLabel.alignment = .right
         contentView.addSubview(recorderLabel)
@@ -63,7 +63,7 @@ class PreferencesWindowController: NSWindowController {
         contentView.addSubview(recorderView)
 
         let hint = NSTextField(
-            labelWithString: "Click, then press a key combo — or press & release modifiers like \u{2325}\u{2318}"
+            labelWithString: "Нажмите и введите комбинацию — или нажмите и отпустите модификаторы, например \u{2325}\u{2318}"
         )
         hint.frame = NSRect(x: 110, y: 206, width: 320, height: 16)
         hint.font = .systemFont(ofSize: 11)
@@ -74,13 +74,13 @@ class PreferencesWindowController: NSWindowController {
     }
 
     private func setupBehaviorSection(in contentView: NSView) {
-        let behaviorLabel = NSTextField(labelWithString: "Behavior")
+        let behaviorLabel = NSTextField(labelWithString: "Поведение")
         behaviorLabel.font = .systemFont(ofSize: 13, weight: .semibold)
         behaviorLabel.frame = NSRect(x: 20, y: 160, width: 200, height: 20)
         contentView.addSubview(behaviorLabel)
 
         switchLayoutCheckbox = NSButton(
-            checkboxWithTitle: "Switch keyboard layout after conversion",
+            checkboxWithTitle: "Переключать раскладку после конвертации",
             target: nil,
             action: nil
         )
@@ -89,7 +89,7 @@ class PreferencesWindowController: NSWindowController {
         contentView.addSubview(switchLayoutCheckbox)
 
         let switchHint = NSTextField(
-            labelWithString: "Automatically activate the target language layout so you can keep typing"
+            labelWithString: "Автоматически активировать раскладку целевого языка, чтобы продолжать печатать"
         )
         switchHint.frame = NSRect(x: 126, y: 116, width: 300, height: 16)
         switchHint.font = .systemFont(ofSize: 11)
@@ -100,25 +100,25 @@ class PreferencesWindowController: NSWindowController {
     }
 
     private func setupGeneralSection(in contentView: NSView) {
-        let generalLabel = NSTextField(labelWithString: "General")
+        let generalLabel = NSTextField(labelWithString: "Общие")
         generalLabel.font = .systemFont(ofSize: 13, weight: .semibold)
         generalLabel.frame = NSRect(x: 20, y: 74, width: 200, height: 20)
         contentView.addSubview(generalLabel)
 
-        launchAtLoginCheckbox = NSButton(checkboxWithTitle: "Launch at Login", target: nil, action: nil)
+        launchAtLoginCheckbox = NSButton(checkboxWithTitle: "Запускать при входе в систему", target: nil, action: nil)
         launchAtLoginCheckbox.frame = NSRect(x: 110, y: 48, width: 200, height: 22)
         launchAtLoginCheckbox.state = LaunchAtLogin.isEnabled ? .on : .off
         contentView.addSubview(launchAtLoginCheckbox)
     }
 
     private func setupButtons(in contentView: NSView) {
-        let saveButton = NSButton(title: "Save", target: self, action: #selector(savePreferences))
+        let saveButton = NSButton(title: "Сохранить", target: self, action: #selector(savePreferences))
         saveButton.frame = NSRect(x: 330, y: 20, width: 90, height: 32)
         saveButton.bezelStyle = .rounded
         saveButton.keyEquivalent = "\r"
         contentView.addSubview(saveButton)
 
-        let cancelButton = NSButton(title: "Cancel", target: self, action: #selector(cancelPreferences))
+        let cancelButton = NSButton(title: "Отмена", target: self, action: #selector(cancelPreferences))
         cancelButton.frame = NSRect(x: 230, y: 20, width: 90, height: 32)
         cancelButton.bezelStyle = .rounded
         cancelButton.keyEquivalent = "\u{1b}"
@@ -224,7 +224,7 @@ class ShortcutRecorderView: NSView {
         window?.makeFirstResponder(self)
         isRecording = true
         peakCarbonModifiers = 0
-        displayField.stringValue = "Press shortcut..."
+        displayField.stringValue = "Введите сочетание..."
         displayField.textColor = .systemOrange
         layer?.borderWidth = 2
         applyLayerColors()

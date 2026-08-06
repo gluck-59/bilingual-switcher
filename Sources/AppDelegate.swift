@@ -57,7 +57,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         let menu = NSMenu()
 
-        let switchItem = NSMenuItem(title: "Switch Selected Text", action: #selector(switchText), keyEquivalent: "")
+        let switchItem = NSMenuItem(title: "Переключить выделенный текст", action: #selector(switchText), keyEquivalent: "")
         switchItem.target = self
         menu.addItem(switchItem)
 
@@ -70,19 +70,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(NSMenuItem.separator())
 
         let checkUpdatesItem = NSMenuItem(
-            title: "Check for Updates...",
+            title: "Проверить обновления...",
             action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)),
             keyEquivalent: ""
         )
         checkUpdatesItem.target = updaterController
         menu.addItem(checkUpdatesItem)
 
-        let prefsItem = NSMenuItem(title: "Preferences...", action: #selector(showPreferences), keyEquivalent: ",")
+        let prefsItem = NSMenuItem(title: "Настройки...", action: #selector(showPreferences), keyEquivalent: ",")
         prefsItem.target = self
         menu.addItem(prefsItem)
 
         let aboutItem = NSMenuItem(
-            title: "About Bilingual Switcher",
+            title: "О программе Bilingual Switcher",
             action: #selector(showAbout),
             keyEquivalent: ""
         )
@@ -91,7 +91,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         menu.addItem(NSMenuItem.separator())
 
-        let quitItem = NSMenuItem(title: "Quit Bilingual Switcher", action: #selector(quit), keyEquivalent: "q")
+        let quitItem = NSMenuItem(title: "Выйти из Bilingual Switcher", action: #selector(quit), keyEquivalent: "q")
         quitItem.target = self
         menu.addItem(quitItem)
 
@@ -101,7 +101,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func hotkeyDescription() -> String {
         let modifiers = UserDefaults.standard.hotkeyModifiers
         let keyCode = UserDefaults.standard.hotkeyKeyCode
-        return "Hotkey: \(HotkeyDisplayHelper.format(keyCode: keyCode, modifiers: modifiers))"
+        return "Горячая клавиша: \(HotkeyDisplayHelper.format(keyCode: keyCode, modifiers: modifiers))"
     }
 
     // MARK: - Helpers
@@ -130,10 +130,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
                 if self.hotkeyManager.registrationFailed {
                     let alert = NSAlert()
-                    alert.messageText = "Could not register shortcut"
+                    alert.messageText = "Не удалось зарегистрировать сочетание клавиш"
                     alert.informativeText = """
-                        This key combination may be in use by another app \
-                        or the system. Please choose a different shortcut.
+                        Возможно, это сочетание уже используется другим приложением \
+                        или системой. Выберите другое сочетание.
                         """
                     alert.alertStyle = .warning
                     alert.runModal()

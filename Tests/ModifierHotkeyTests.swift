@@ -288,14 +288,14 @@ final class ModifierHotkeyTests: XCTestCase {
     // surfaces. Assert the shared copy (not the modal itself, which can't run
     // headless) so both paths stay in lockstep.
     func testAccessibilityAlert_SharedCopyIsPresent() {
-        XCTAssertEqual(TextSwitcher.accessibilityAlertTitle, "Accessibility Permission Required")
+        XCTAssertEqual(TextSwitcher.accessibilityAlertTitle, "Требуется разрешение на доступность")
         XCTAssertTrue(
-            TextSwitcher.accessibilityAlertBody.contains("Privacy & Security"),
-            "Body must direct the user to Privacy & Security → Accessibility"
+            TextSwitcher.accessibilityAlertBody.contains("Конфиденциальность и безопасность"),
+            "Body must direct the user to Конфиденциальность и безопасность → Доступность"
         )
         XCTAssertTrue(
-            TextSwitcher.accessibilityAlertBody.contains("Accessibility"),
-            "Body must name the Accessibility pane"
+            TextSwitcher.accessibilityAlertBody.contains("Доступность"),
+            "Body must name the Доступность pane"
         )
     }
 
