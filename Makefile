@@ -16,6 +16,12 @@ COMMON_FLAGS = -O \
                -Xlinker -rpath -Xlinker @executable_path/../Frameworks
 INSTALL_DIR  = /Applications
 
+# Code-signing identity. A stable self-signed "Code Signing" certificate keeps
+# the macOS Accessibility (TCC) grant valid across rebuilds — ad-hoc signing
+# changes the cdhash every build and silently revokes the grant. Falls back to
+# ad-hoc when the certificate is absent (e.g. CI), so the build never breaks.
+SIGN_IDENTITY ?= BilingualSwitcher Dev
+
 TESTS          = $(filter-out Tests/ASanRunner.swift,$(wildcard Tests/*.swift))
 SOURCES_NO_MAIN = $(filter-out Sources/main.swift,$(SOURCES))
 XCTEST_PLAT    = $(shell xcode-select -p)/Platforms/MacOSX.platform/Developer
@@ -51,7 +57,13 @@ $(APP_BUNDLE): $(SOURCES) Info.plist Resources/AppIcon.icns Resources/MenuBarIco
 	@cp Resources/MenuBarIcon.png $(APP_BUNDLE)/Contents/Resources/MenuBarIcon.png
 	@cp Resources/MenuBarIcon@2x.png $(APP_BUNDLE)/Contents/Resources/MenuBarIcon@2x.png 2>/dev/null || true
 	@rsync -a --delete $(SPARKLE_DIR) $(APP_BUNDLE)/Contents/Frameworks/
-	@codesign --force --deep --sign - $(APP_BUNDLE)
+	@if security find-identity -p codesigning 2>/dev/null | grep -q "$(SIGN_IDENTITY)"; then \
+		codesign --force --deep --sign "$(SIGN_IDENTITY)" $(APP_BUNDLE); \
+		echo "✓ Signed with $(SIGN_IDENTITY)"; \
+	else \
+		codesign --force --deep --sign - $(APP_BUNDLE); \
+		echo "⚠ $(SIGN_IDENTITY) not found — signed ad-hoc"; \
+	fi
 	@echo "✓ Built $(APP_BUNDLE) (universal)"
 
 # --- Icons ---
