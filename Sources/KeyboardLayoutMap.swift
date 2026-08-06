@@ -352,6 +352,9 @@ class KeyboardLayoutMap {
     }
 
     // MARK: - UCKeyTranslate Helpers
+}
+
+extension KeyboardLayoutMap {
 
     private static func translateKey(keyCode: UInt16, shift: Bool,
                                      layoutData: Data, keyboardType: UInt32) -> Character? {
