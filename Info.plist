@@ -9,15 +9,15 @@
     <key>CFBundleIdentifier</key>
     <string>com.komandakycto.bilingual-switcher</string>
     <key>CFBundleVersion</key>
-    <string>1.0.0</string>
+    <string>1.0.1</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.0.0</string>
+    <string>1.0.1</string>
     <key>CFBundleExecutable</key>
     <string>BilingualSwitcher</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>SUPublicEDKey</key>
-    <string>qK8vqZSkyu/2+rmlhsuF7Haz01reLYoMYlRi5dSgm5w=</string>
+    <string>Iw31CatStEJGFlw4G3OaS9hXyFuMe6ssgEVkKU20y64=</string>
     <key>SUFeedURL</key>
     <string>https://gluck-59.github.io/bilingual-switcher/appcast.xml</string>
     <key>SUEnableAutomaticChecks</key>
