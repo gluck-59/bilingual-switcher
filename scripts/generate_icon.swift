@@ -219,7 +219,7 @@ func makeMenuBarIcon(pixelSize: Int) -> NSImage {
     ctx.setFillColor(CGColor(red: 0, green: 0, blue: 0, alpha: 1.0))
 
     // Draw two letters side by side: a Cyrillic and Latin letter
-    let fontSize = s * 0.624
+    let fontSize = s * 0.686
     let attrs: [NSAttributedString.Key: Any] = [
         .font: NSFont.systemFont(ofSize: fontSize, weight: .semibold),
         .foregroundColor: NSColor.black,
