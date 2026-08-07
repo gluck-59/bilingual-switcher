@@ -16,31 +16,31 @@ final class LayoutConverterTests: XCTestCase {
 
     func testEnglishToRussian_ghbdtn() throws {
         try requireEnRu()
-        let (result, _) = LayoutConverter.convert("ghbdtn")
+        let result = LayoutConverter.convertWithTarget("ghbdtn").converted
         XCTAssertEqual(result, "привет")
     }
 
     func testEnglishToRussian_ntcn() throws {
         try requireEnRu()
-        let (result, _) = LayoutConverter.convert("ntcn")
+        let result = LayoutConverter.convertWithTarget("ntcn").converted
         XCTAssertEqual(result, "тест")
     }
 
     func testEnglishToRussian_cjkywt() throws {
         try requireEnRu()
-        let (result, _) = LayoutConverter.convert("cjkywt")
+        let result = LayoutConverter.convertWithTarget("cjkywt").converted
         XCTAssertEqual(result, "солнце")
     }
 
     func testEnglishToRussian_cnhjrf() throws {
         try requireEnRu()
-        let (result, _) = LayoutConverter.convert("cnhjrf")
+        let result = LayoutConverter.convertWithTarget("cnhjrf").converted
         XCTAssertEqual(result, "строка")
     }
 
     func testEnglishToRussian_ghjdthrf() throws {
         try requireEnRu()
-        let (result, _) = LayoutConverter.convert("ghjdthrf")
+        let result = LayoutConverter.convertWithTarget("ghjdthrf").converted
         XCTAssertEqual(result, "проверка")
     }
 
@@ -48,19 +48,19 @@ final class LayoutConverterTests: XCTestCase {
 
     func testRussianToEnglish_привет() throws {
         try requireEnRu()
-        let (result, _) = LayoutConverter.convert("привет")
+        let result = LayoutConverter.convertWithTarget("привет").converted
         XCTAssertEqual(result, "ghbdtn")
     }
 
     func testRussianToEnglish_тест() throws {
         try requireEnRu()
-        let (result, _) = LayoutConverter.convert("тест")
+        let result = LayoutConverter.convertWithTarget("тест").converted
         XCTAssertEqual(result, "ntcn")
     }
 
     func testRussianToEnglish_строка() throws {
         try requireEnRu()
-        let (result, _) = LayoutConverter.convert("строка")
+        let result = LayoutConverter.convertWithTarget("строка").converted
         XCTAssertEqual(result, "cnhjrf")
     }
 
@@ -82,18 +82,18 @@ final class LayoutConverterTests: XCTestCase {
 
     func testMixedText_numbersPassThrough() throws {
         try requireEnRu()
-        let (result, _) = LayoutConverter.convert("ntcn123")
+        let result = LayoutConverter.convertWithTarget("ntcn123").converted
         XCTAssertEqual(result, "тест123")
     }
 
     func testMixedText_spacesPassThrough() throws {
         try requireEnRu()
-        let (result, _) = LayoutConverter.convert("ghbdtn vbh")
+        let result = LayoutConverter.convertWithTarget("ghbdtn vbh").converted
         XCTAssertEqual(result, "привет мир")
     }
 
     func testEmptyString() {
-        let (result, _) = LayoutConverter.convert("")
+        let result = LayoutConverter.convertWithTarget("").converted
         XCTAssertEqual(result, "")
     }
 
@@ -101,13 +101,13 @@ final class LayoutConverterTests: XCTestCase {
 
     func testUppercase_englishToRussian() throws {
         try requireEnRu()
-        let (result, _) = LayoutConverter.convert("Ghbdtn")
+        let result = LayoutConverter.convertWithTarget("Ghbdtn").converted
         XCTAssertEqual(result, "Привет")
     }
 
     func testUppercase_russianToEnglish() throws {
         try requireEnRu()
-        let (result, _) = LayoutConverter.convert("Привет")
+        let result = LayoutConverter.convertWithTarget("Привет").converted
         XCTAssertEqual(result, "Ghbdtn")
     }
 
@@ -116,8 +116,8 @@ final class LayoutConverterTests: XCTestCase {
     func testRoundtrip_englishToRussianAndBack() throws {
         try requireEnRu()
         let original = "ghbdtn"
-        let (russian, _) = LayoutConverter.convert(original)
-        let (backToEnglish, _) = LayoutConverter.convert(russian)
+        let russian = LayoutConverter.convertWithTarget(original).converted
+        let backToEnglish = LayoutConverter.convertWithTarget(russian).converted
         XCTAssertEqual(backToEnglish, original)
     }
 
@@ -148,7 +148,7 @@ final class LayoutConverterTests: XCTestCase {
             ("n", "т"), ("m", "ь"),
         ]
         for (en, ru) in pairs {
-            let (result, _) = LayoutConverter.convert(en)
+            let result = LayoutConverter.convertWithTarget(en).converted
             XCTAssertEqual(result, ru, "'\(en)' should convert to '\(ru)'")
         }
     }
@@ -164,7 +164,7 @@ final class LayoutConverterTests: XCTestCase {
             ("N", "Т"), ("M", "Ь"),
         ]
         for (en, ru) in pairs {
-            let (result, _) = LayoutConverter.convert("QQ\(en)")
+            let result = LayoutConverter.convertWithTarget("QQ\(en)").converted
             let expected = "ЙЙ\(ru)"
             XCTAssertEqual(result, expected, "'\(en)' uppercase should convert correctly")
         }
@@ -178,7 +178,7 @@ final class LayoutConverterTests: XCTestCase {
             (",", "б"), (".", "ю"),
         ]
         for (en, ru) in pairs {
-            let (result, _) = LayoutConverter.convert("ghbdtn\(en)")
+            let result = LayoutConverter.convertWithTarget("ghbdtn\(en)").converted
             XCTAssertEqual(result, "привет\(ru)", "'\(en)' should convert to '\(ru)'")
         }
     }
@@ -191,19 +191,19 @@ final class LayoutConverterTests: XCTestCase {
             ("<", "Б"), (">", "Ю"),
         ]
         for (en, ru) in pairs {
-            let (result, _) = LayoutConverter.convert("GHBDTN\(en)")
+            let result = LayoutConverter.convertWithTarget("GHBDTN\(en)").converted
             XCTAssertEqual(result, "ПРИВЕТ\(ru)", "'\(en)' should convert to '\(ru)'")
         }
     }
 
     func testBackwardCompat_backtickTilde() throws {
         try requireEnRu()
-        let (result1, _) = LayoutConverter.convert("ghbdtn`")
+        let result1 = LayoutConverter.convertWithTarget("ghbdtn`").converted
         XCTAssertTrue(result1.hasPrefix("привет"), "Letter portion should convert")
         XCTAssertNotEqual(result1, "ghbdtn`", "Backtick should be converted")
 
-        let (converted, _) = LayoutConverter.convert("ghbdtn`")
-        let (roundtrip, _) = LayoutConverter.convert(converted)
+        let converted = LayoutConverter.convertWithTarget("ghbdtn`").converted
+        let roundtrip = LayoutConverter.convertWithTarget(converted).converted
         XCTAssertEqual(roundtrip, "ghbdtn`", "Backtick roundtrip should work")
     }
 
@@ -211,7 +211,7 @@ final class LayoutConverterTests: XCTestCase {
         try requireEnRu()
         let symbols = ["@", "#", "$", "^", "&"]
         for sym in symbols {
-            let (result, _) = LayoutConverter.convert("ghbdtn\(sym)")
+            let result = LayoutConverter.convertWithTarget("ghbdtn\(sym)").converted
             let prefix = String(result.prefix(6))
             XCTAssertEqual(prefix, "привет", "Letter portion should convert with '\(sym)' appended")
         }
@@ -221,8 +221,8 @@ final class LayoutConverterTests: XCTestCase {
         try requireEnRu()
         let testStrings = ["ghbdtn/", "ghbdtn|", "GHBDTN?"]
         for original in testStrings {
-            let (converted, _) = LayoutConverter.convert(original)
-            let (roundtrip, _) = LayoutConverter.convert(converted)
+            let converted = LayoutConverter.convertWithTarget(original).converted
+            let roundtrip = LayoutConverter.convertWithTarget(converted).converted
             XCTAssertEqual(roundtrip, original, "Roundtrip for '\(original)'")
         }
     }
@@ -250,7 +250,7 @@ final class LayoutConverterTests: XCTestCase {
     func testStress_LongTextProducesExpectedOutput() throws {
         try requireEnRu()
         let fixture = makeFixture(reps: Self.tenSentencesReps)
-        let (result, _) = LayoutConverter.convert(fixture.input)
+        let result = LayoutConverter.convertWithTarget(fixture.input).converted
         XCTAssertEqual(result, fixture.expected,
                        "Long-input conversion must match the per-token expected output")
     }
@@ -258,7 +258,7 @@ final class LayoutConverterTests: XCTestCase {
     func testStress_VeryLongInputDoesNotCorruptOutput() throws {
         try requireEnRu()
         let fixture = makeFixture(reps: Self.stressReps)
-        let (result, _) = LayoutConverter.convert(fixture.input)
+        let result = LayoutConverter.convertWithTarget(fixture.input).converted
         XCTAssertEqual(result.count, fixture.expected.count,
                        "Output length must match input character-for-character (no drops)")
         XCTAssertEqual(result, fixture.expected)
@@ -267,24 +267,24 @@ final class LayoutConverterTests: XCTestCase {
     func testPerformance_ConvertOneSentence() throws {
         try requireEnRu()
         let input = makeFixture(reps: Self.oneSentenceReps).input
-        measure { _ = LayoutConverter.convert(input) }
+        measure { _ = LayoutConverter.convertWithTarget(input) }
     }
 
     func testPerformance_ConvertTwoThreeSentences() throws {
         try requireEnRu()
         let input = makeFixture(reps: Self.twoThreeSentencesReps).input
-        measure { _ = LayoutConverter.convert(input) }
+        measure { _ = LayoutConverter.convertWithTarget(input) }
     }
 
     func testPerformance_ConvertTenSentences() throws {
         try requireEnRu()
         let input = makeFixture(reps: Self.tenSentencesReps).input
-        measure { _ = LayoutConverter.convert(input) }
+        measure { _ = LayoutConverter.convertWithTarget(input) }
     }
 
     func testPerformance_ConvertStress() throws {
         try requireEnRu()
         let input = makeFixture(reps: Self.stressReps).input
-        measure { _ = LayoutConverter.convert(input) }
+        measure { _ = LayoutConverter.convertWithTarget(input) }
     }
 }

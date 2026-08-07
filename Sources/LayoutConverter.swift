@@ -23,14 +23,8 @@ class LayoutConverter {
     /// Convert text between the user's installed keyboard layouts.
     /// Auto-detects which layout produced the text and converts to the other.
     /// For 3+ layouts, uses the two most recently active layouts as the working pair.
-    static func convert(_ text: String, direction: ConversionDirection = .auto) -> (String, ConversionDirection) {
-        let resolved = resolve(text, direction: direction)
-        return (resolved.converted, resolved.direction)
-    }
-
-    /// Like convert(), but also returns the resolved target layout so callers
-    /// that need to activate the target layout don't re-derive it from the
-    /// ambiguous direction.
+    /// Returns the resolved target layout so callers that need to activate it
+    /// don't re-derive it from the ambiguous direction.
     static func convertWithTarget(_ text: String, direction: ConversionDirection = .auto) -> ConversionResult {
         resolve(text, direction: direction)
     }
