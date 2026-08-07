@@ -434,12 +434,29 @@ class TextSwitcher {
     /// surface the *same* message when the Accessibility grant is missing —
     /// the modifier-only global monitor never reaches this flow's own
     /// `AXIsProcessTrusted()` guard, so it must invoke this directly.
+    ///
+    /// Opens System Settings at the Accessibility pane automatically so the
+    /// user can grant the permission without hunting for it.
     static func showAccessibilityNotification() {
+        openAccessibilitySettings()
         let alert = NSAlert()
         alert.messageText = accessibilityAlertTitle
         alert.informativeText = accessibilityAlertBody
         alert.alertStyle = .warning
         alert.addButton(withTitle: "OK")
         alert.runModal()
+    }
+
+    /// Opens System Settings at the Accessibility permission pane. The URL
+    /// scheme differs between macOS 13+ (Ventura, "extension" schema) and
+    /// macOS 12 and earlier (Monterey, legacy "preference" schema).
+    static func openAccessibilitySettings() {
+        let major = ProcessInfo.processInfo.operatingSystemVersion.majorVersion
+        let urlString = major >= 13
+            ? "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Accessibility"
+            : "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
+        if let url = URL(string: urlString) {
+            NSWorkspace.shared.open(url)
+        }
     }
 }
