@@ -21,7 +21,7 @@
     <key>SUPublicEDKey</key>
     <string>Iw31CatStEJGFlw4G3OaS9hXyFuMe6ssgEVkKU20y64=</string>
     <key>SUFeedURL</key>
-    <string>https://gluck-59.github.io/bilingual-switcher/appcast.xml</string>
+    <string>https://raw.githubusercontent.com/gluck-59/bilingual-switcher/main/docs/appcast.xml</string>
     <key>SUEnableAutomaticChecks</key>
     <true/>
     <key>CFBundleIconFile</key>

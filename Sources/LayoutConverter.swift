@@ -10,15 +10,35 @@ enum ConversionDirection {
     case auto
 }
 
+/// Result of a conversion, including the resolved target layout so callers
+/// can activate it without re-deriving it from the direction.
+struct ConversionResult {
+    let converted: String
+    let direction: ConversionDirection
+    let target: LayoutInfo?
+}
+
 class LayoutConverter {
 
     /// Convert text between the user's installed keyboard layouts.
     /// Auto-detects which layout produced the text and converts to the other.
     /// For 3+ layouts, uses the two most recently active layouts as the working pair.
     static func convert(_ text: String, direction: ConversionDirection = .auto) -> (String, ConversionDirection) {
+        let resolved = resolve(text, direction: direction)
+        return (resolved.converted, resolved.direction)
+    }
+
+    /// Like convert(), but also returns the resolved target layout so callers
+    /// that need to activate the target layout don't re-derive it from the
+    /// ambiguous direction.
+    static func convertWithTarget(_ text: String, direction: ConversionDirection = .auto) -> ConversionResult {
+        resolve(text, direction: direction)
+    }
+
+    private static func resolve(_ text: String, direction: ConversionDirection) -> ConversionResult {
         let layouts = KeyboardLayoutMap.installedLayouts()
         guard layouts.count >= 2 else {
-            return (text, .auto)
+            return ConversionResult(converted: text, direction: .auto, target: nil)
         }
 
         // For 3+ layouts, narrow down to the user's recent pair.
@@ -50,7 +70,7 @@ class LayoutConverter {
         }
 
         let converted = convertText(text, from: sourceLayout, to: targetLayout)
-        return (converted, resolvedDirection)
+        return ConversionResult(converted: converted, direction: resolvedDirection, target: targetLayout)
     }
 
     /// Detect which installed layout most likely produced the given text.
