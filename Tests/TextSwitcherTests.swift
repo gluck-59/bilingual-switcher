@@ -390,8 +390,16 @@ final class TextSwitcherTests: XCTestCase {
         XCTAssertEqual(WholeWordSelection.tokenRange(for: "hello\nworld", caretInLine: 11), 6..<11)
     }
 
-    func testTokenRange_CaretAfterWhitespaceReturnsNil() {
-        XCTAssertNil(WholeWordSelection.tokenRange(for: "hello world", caretInLine: 6))
+    func testTokenRange_CaretAfterWhitespaceSelectsPreviousWord() {
+        XCTAssertEqual(WholeWordSelection.tokenRange(for: "hello world", caretInLine: 6), 0..<5)
+    }
+
+    func testTokenRange_TrailingSpaceSelectsWordBeforeIt() {
+        XCTAssertEqual(WholeWordSelection.tokenRange(for: "dcz;jgf ", caretInLine: 8), 0..<7)
+    }
+
+    func testTokenRange_OnlyWhitespaceBeforeCaretReturnsNil() {
+        XCTAssertNil(WholeWordSelection.tokenRange(for: "  hello", caretInLine: 2))
     }
 
     func testTokenRange_CaretAtLineStartReturnsNil() {

@@ -8,10 +8,10 @@ import ApplicationServices
 enum WholeWordSelection {
 
     /// Select the maximal run of non-whitespace characters ending at the
-    /// caret in the focused text element and return its text. Returns nil
-    /// when the focused app does not expose the required AX attributes or
-    /// when the token is empty (caret right after whitespace or at the start
-    /// of a line).
+    /// caret in the focused text element and return its text. When the caret
+    /// rests on whitespace, the word before it is selected instead. Returns
+    /// nil when the focused app does not expose the required AX attributes or
+    /// when there is no word before the caret.
     static func selectWordBeforeCaret() -> String? {
         guard let element = focusedElement() else { return nil }
         guard let caretIndex = caretIndex(in: element) else { return nil }
@@ -33,17 +33,24 @@ enum WholeWordSelection {
     }
 
     /// The maximal run of non-whitespace characters ending at `caretInLine`
-    /// within `lineText`. Returns nil when the caret sits on whitespace or at
-    /// the start of the line, so there is no word to select.
+    /// within `lineText`. When the caret sits on whitespace, the run ending
+    /// just before that whitespace is returned instead — a word is always
+    /// surrounded by whitespace, so the caret may rest on the trailing space.
+    /// Returns nil when there is no word before the caret (line start or only
+    /// whitespace ahead of it).
     static func tokenRange(for lineText: String, caretInLine: Int) -> Range<Int>? {
         let chars = Array(lineText)
         guard caretInLine > 0, caretInLine <= chars.count else { return nil }
-        var tokenStart = caretInLine
-        while tokenStart > 0 && !chars[tokenStart - 1].isWhitespace {
-            tokenStart -= 1
+        var end = caretInLine
+        while end > 0 && chars[end - 1].isWhitespace {
+            end -= 1
         }
-        guard tokenStart < caretInLine else { return nil }
-        return tokenStart..<caretInLine
+        guard end > 0 else { return nil }
+        var start = end
+        while start > 0 && !chars[start - 1].isWhitespace {
+            start -= 1
+        }
+        return start..<end
     }
 
     // MARK: - AX helpers
