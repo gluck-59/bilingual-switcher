@@ -231,6 +231,13 @@ class KeyboardLayoutMap {
         return map
     }
 
+    /// The ISO-extra key (keyCode 10, between Shift and Z on ISO keyboards).
+    /// It does not exist on ANSI keyboards, so when a character is reachable on
+    /// both it and a standard key, the standard key is the one users actually
+    /// press — and the mapping must not depend on Dictionary iteration order,
+    /// which is randomized per process.
+    private static let isoExtraKeyCode: UInt16 = 10
+
     /// Insert a key mapping into a reverse map, preferring main keyboard keys and unshifted.
     private static func insertPreferring(
         _ mapping: KeyMapping, for char: Character, into reverse: inout [Character: KeyMapping]
@@ -244,6 +251,9 @@ class KeyboardLayoutMap {
         if newIsMain && !existingIsMain {
             reverse[char] = mapping
         } else if newIsMain == existingIsMain && !mapping.shifted && existing.shifted {
+            reverse[char] = mapping
+        } else if newIsMain == existingIsMain && mapping.shifted == existing.shifted
+            && existing.keyCode == isoExtraKeyCode && mapping.keyCode != isoExtraKeyCode {
             reverse[char] = mapping
         }
     }
