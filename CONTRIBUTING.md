@@ -28,7 +28,7 @@ Tests/             XCTest test files
 Resources/         App icon, menu bar icon
 Casks/             Homebrew cask formula (auto-updated by release CI)
 scripts/           Icon generation script
-docs/              Social preview, Sparkle appcast (auto-updated by release CI)
+docs/              Sparkle appcast (auto-updated by release CI), TODO
 Vendor/            Sparkle framework (gitignored, downloaded via make setup)
 ```
 
