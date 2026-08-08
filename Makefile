@@ -41,6 +41,7 @@ all: $(APP_BUNDLE)
 # --- Build (universal binary) ---
 
 $(APP_BUNDLE): $(SOURCES) Info.plist Resources/AppIcon.icns Resources/MenuBarIcon.png $(SPARKLE_DIR)
+	@rm -f /tmp/bilingual-switcher.log
 	@mkdir -p $(APP_BUNDLE)/Contents/MacOS
 	@mkdir -p $(APP_BUNDLE)/Contents/Resources
 	@mkdir -p $(APP_BUNDLE)/Contents/Frameworks
@@ -76,6 +77,7 @@ Resources/AppIcon.icns: scripts/generate_icon.swift
 # --- Install ---
 
 install: $(APP_BUNDLE)
+	@rm -f /tmp/bilingual-switcher.log
 	@echo "Installing to $(INSTALL_DIR)..."
 	@rm -rf "$(INSTALL_DIR)/$(APP_NAME).app"
 	@cp -R $(APP_BUNDLE) "$(INSTALL_DIR)/"

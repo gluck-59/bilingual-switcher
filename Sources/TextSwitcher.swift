@@ -31,13 +31,18 @@ class TextSwitcher {
     /// posting keystrokes. Real release latency is typically 50–200 ms;
     /// 500 ms covers users who hold the hotkey longer.
     private static let modifierReleaseTimeout: TimeInterval = 0.5
+    /// Longer timeout for terminals: a terminal user often holds the hotkey
+    /// while scanning the converted output, so a short timeout would abort
+    /// legitimate conversions. We still refuse to post while modifiers are
+    /// held — held Cmd hijacks every synthetic keystroke.
+    private static let terminalModifierReleaseTimeout: TimeInterval = 1.5
     private static let modifierReleasePollInterval: TimeInterval = 0.005
 
     /// Small settle pause between backspace flood and Unicode injection in
-    /// the terminal-fallback path. Terminals drain their input buffer
-    /// synchronously, so 50 ms is enough — no renderer IPC queue to worry
-    /// about, unlike Electron.
-    private static let terminalSettleDelay: TimeInterval = 0.05
+    /// the terminal-fallback path. 150 ms lets the terminal finish draining
+    /// and echoing the backspaces before the injection starts; 50 ms was
+    /// occasionally too short and interleaved the injection with the echo.
+    private static let terminalSettleDelay: TimeInterval = 0.15
 
     /// Bundle IDs that need the backspace-flood path because their visible
     /// text "selection" is a screen overlay rather than a real selection in
@@ -161,8 +166,9 @@ class TextSwitcher {
         }
     }
 
-    /// No text was selected, so Cmd+C copied nothing. Select the word before
-    /// the cursor and retry the copy, converting the last typed word instead.
+    /// No text was selected, so Cmd+C copied nothing. In regular apps,
+    /// select the word before the cursor and retry the copy. In terminals,
+    /// keyboard-based selection is not possible — beep and bail out.
     private func retryWithLastWordSelection(
         savedItems: [[NSPasteboard.PasteboardType: Data]],
         pasteboard: NSPasteboard,
@@ -176,6 +182,24 @@ class TextSwitcher {
             self.completeConversion(
                 copied: true,
                 copiedText: text,
+                savedItems: savedItems,
+                pasteboard: pasteboard,
+                frontBundleID: frontBundleID
+            )
+            return
+        }
+
+        // Option+Shift+Left Arrow selects the word before the cursor in
+        // every Cocoa text view and most editors — but not in terminals,
+        // where keyboard-based selection doesn't exist. In terminals the
+        // user must select text with the mouse; skip the fallback and
+        // let completeConversion beep + restore the clipboard.
+        let strategy = Self.pickStrategy(bundleID: frontBundleID)
+        if strategy == .backspaceFlood {
+            Self.diag("no selection in terminal — skipping word-select fallback")
+            self.completeConversion(
+                copied: false,
+                copiedText: nil,
                 savedItems: savedItems,
                 pasteboard: pasteboard,
                 frontBundleID: frontBundleID
@@ -265,14 +289,36 @@ class TextSwitcher {
         // physically released the hotkey. With Cmd still held, our
         // synthesized events get hijacked: Cmd+letter becomes a menu
         // shortcut, Cmd+Backspace deletes the whole field. Wait it out.
-        let flagsBefore = CGEventSource.flagsState(.hidSystemState)
-        Self.diag("flags before modifier wait: 0x\(String(flagsBefore.rawValue, radix: 16))")
-        let cleared = Self.waitForModifierRelease()
-        let flagsAfter = CGEventSource.flagsState(.hidSystemState)
-        Self.diag("flags after wait: 0x\(String(flagsAfter.rawValue, radix: 16)) cleared=\(cleared)")
-
+        //
+        // A modifier-only hotkey (e.g. ⌃⌥) fires on full release — the user
+        // already let go, so no wait is needed. The wait reads .hidSystemState,
+        // which our synthesized Cmd+C leaves reporting Cmd as held (no separate
+        // Cmd keyUp is posted), so it would spuriously time out and abort.
         let strategy = Self.pickStrategy(bundleID: frontBundleID)
         Self.diag("strategy: \(strategy.rawValue) (bundle=\(frontBundleID ?? "?"))")
+
+        if UserDefaults.standard.hotkeyKeyCode != HotkeyManager.modifierOnlyKeyCode {
+            let flagsBefore = CGEventSource.flagsState(.hidSystemState)
+            Self.diag("flags before modifier wait: 0x\(String(flagsBefore.rawValue, radix: 16))")
+            let timeout = strategy == .backspaceFlood
+                ? Self.terminalModifierReleaseTimeout
+                : Self.modifierReleaseTimeout
+            let cleared = Self.waitForModifierRelease(timeout: timeout)
+            let flagsAfter = CGEventSource.flagsState(.hidSystemState)
+            Self.diag("flags after wait: 0x\(String(flagsAfter.rawValue, radix: 16)) cleared=\(cleared)")
+
+            // If the user is still holding the hotkey, every keystroke we post
+            // would be hijacked (Cmd+Backspace deletes the line, Cmd+letter is
+            // a menu shortcut). Posting anyway corrupts the text. Bail out
+            // instead: the clipboard is already restored and no events have
+            // been posted, so aborting is safe — the user just hears a beep
+            // and retries.
+            guard cleared else {
+                Self.diag("modifier wait timed out — aborting to avoid hijacked keystrokes")
+                NSSound.beep()
+                return
+            }
+        }
 
         switch strategy {
         case .selectionReplace:
@@ -285,10 +331,19 @@ class TextSwitcher {
 
         case .backspaceFlood:
             // Terminals don't see the visual selection at the shell-input
-            // level, so typing appends rather than replaces. Deselect and
-            // erase character-by-character first.
+            // level, so typing appends rather than replaces. Move the cursor
+            // to the end of the line first: a mouse click that starts a
+            // selection can leave the TUI's internal cursor at the start of
+            // the text, so Backspaces would delete nothing. End is
+            // layout-independent and idempotent (never overshoots past the
+            // end); a couple of Right Arrows cover terminals that intercept
+            // End for scrolling. Then erase character-by-character.
+            Self.diag("backspaceFlood: textLen=\(text.count) settle=\(Self.terminalSettleDelay)")
+            Self.simulateKeyStroke(keyCode: CGKeyCode(kVK_End), flags: [])
             Self.simulateKeyStroke(keyCode: CGKeyCode(kVK_RightArrow), flags: [])
-            for _ in text {
+            Self.simulateKeyStroke(keyCode: CGKeyCode(kVK_RightArrow), flags: [])
+            // One extra backspace: terminals strip a trailing space when copying.
+            for _ in 0..<(text.count + 1) {
                 Self.simulateKeyStroke(keyCode: CGKeyCode(kVK_Delete), flags: [])
             }
             Thread.sleep(forTimeInterval: Self.terminalSettleDelay)
