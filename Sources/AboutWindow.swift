@@ -65,8 +65,7 @@ class AboutWindowController: NSWindowController {
     }
 
     @objc private func openGitHub() {
-        // Update this URL once the repo is published
-        if let url = URL(string: "https://github.com/komandakycto/bilingual-switcher") {
+        if let url = URL(string: "https://github.com/gluck-59/bilingual-switcher") {
             NSWorkspace.shared.open(url)
         }
     }
