@@ -207,16 +207,46 @@ class TextSwitcher {
             return
         }
 
+        // Prefer a precise Accessibility selection: the whitespace-delimited
+        // word before the caret. ⌥⇧← (fallback below) splits on punctuation,
+        // which mis-detects words like `dcz;jgf`.
+        if let axWord = WholeWordSelection.selectWordBeforeCaret() {
+            Self.diag("AX selected word: \(axWord.prefix(80))")
+            Thread.sleep(forTimeInterval: 0.05)
+            self.copySelectionAndCompleteConversion(
+                label: "AX-select",
+                savedItems: savedItems,
+                pasteboard: pasteboard,
+                frontBundleID: frontBundleID
+            )
+            return
+        }
+
         Self.diag("no selection — selecting previous word")
 
         // Option+Shift+Left Arrow selects the word before the cursor in every
         // Cocoa text view and most editors.
         Self.simulateKeyStroke(keyCode: CGKeyCode(kVK_LeftArrow), flags: [.maskAlternate, .maskShift])
         Thread.sleep(forTimeInterval: 0.05)
+        self.copySelectionAndCompleteConversion(
+            label: "select-word",
+            savedItems: savedItems,
+            pasteboard: pasteboard,
+            frontBundleID: frontBundleID
+        )
+    }
 
+    /// Post Cmd+C, wait for the focused app to fill the pasteboard, then run
+    /// the conversion on whatever the active selection produced.
+    private func copySelectionAndCompleteConversion(
+        label: String,
+        savedItems: [[NSPasteboard.PasteboardType: Data]],
+        pasteboard: NSPasteboard,
+        frontBundleID: String?
+    ) {
         let baselineChangeCount = pasteboard.changeCount
         Self.simulateKeyStroke(keyCode: CGKeyCode(kVK_ANSI_C), flags: .maskCommand)
-        Self.diag("posted select-word + Cmd+C, baselineChangeCount=\(baselineChangeCount)")
+        Self.diag("posted \(label) + Cmd+C, baselineChangeCount=\(baselineChangeCount)")
 
         Self.pollForClipboardChange(
             initialChangeCount: baselineChangeCount,

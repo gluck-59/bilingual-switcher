@@ -367,4 +367,38 @@ final class TextSwitcherTests: XCTestCase {
         wait(for: [done], timeout: 0.05)
         XCTAssertEqual(result, true)
     }
+
+    // MARK: - WholeWordSelection.tokenRange
+
+    func testTokenRange_SelectsWholeTokenWithPunctuation() {
+        XCTAssertEqual(WholeWordSelection.tokenRange(for: "dcz;jgf", caretInLine: 7), 0..<7)
+    }
+
+    func testTokenRange_StopsAtSpace() {
+        XCTAssertEqual(WholeWordSelection.tokenRange(for: "hello world", caretInLine: 11), 6..<11)
+    }
+
+    func testTokenRange_CaretInMiddleOfWordSelectsLeftPart() {
+        XCTAssertEqual(WholeWordSelection.tokenRange(for: "hello world", caretInLine: 5), 0..<5)
+    }
+
+    func testTokenRange_TabIsBoundary() {
+        XCTAssertEqual(WholeWordSelection.tokenRange(for: "foo\tbar", caretInLine: 7), 4..<7)
+    }
+
+    func testTokenRange_NewlineIsBoundary() {
+        XCTAssertEqual(WholeWordSelection.tokenRange(for: "hello\nworld", caretInLine: 11), 6..<11)
+    }
+
+    func testTokenRange_CaretAfterWhitespaceReturnsNil() {
+        XCTAssertNil(WholeWordSelection.tokenRange(for: "hello world", caretInLine: 6))
+    }
+
+    func testTokenRange_CaretAtLineStartReturnsNil() {
+        XCTAssertNil(WholeWordSelection.tokenRange(for: "hello", caretInLine: 0))
+    }
+
+    func testTokenRange_EmptyLineReturnsNil() {
+        XCTAssertNil(WholeWordSelection.tokenRange(for: "", caretInLine: 0))
+    }
 }
