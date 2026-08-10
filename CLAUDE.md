@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 macOS menu bar app that converts selected text between any two installed keyboard layouts (e.g., English↔Russian) via a global hotkey. Uses `UCKeyTranslate` to dynamically read layout data from the OS — no hardcoded mappings.
 
+## Working Rules
+
+- Do only what the user explicitly asked. No proactive commits, pushes, or other actions without an explicit request.
+
 ## Build Commands
 
 ```bash

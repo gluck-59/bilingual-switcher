@@ -4,9 +4,9 @@ import ServiceManagement
 
 class PreferencesWindowController: NSWindowController {
     private let onHotkeyChanged: () -> Void
-    private var recorderView: ShortcutRecorderView!
-    private var launchAtLoginCheckbox: NSButton!
-    private var switchLayoutCheckbox: NSButton!
+    @IBOutlet private var recorderView: ShortcutRecorderView!
+    @IBOutlet private var switchLayoutCheckbox: NSButton!
+    @IBOutlet private var launchAtLoginCheckbox: NSButton!
     private var currentKeyCode: UInt32
     private var currentModifiers: UInt32
 
@@ -14,118 +14,36 @@ class PreferencesWindowController: NSWindowController {
         self.onHotkeyChanged = onHotkeyChanged
         self.currentKeyCode = UserDefaults.standard.hotkeyKeyCode
         self.currentModifiers = UserDefaults.standard.hotkeyModifiers
-
-        let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 440, height: 310),
-            styleMask: [.titled, .closable],
-            backing: .buffered,
-            defer: false
-        )
-        window.title = "Настройки"
-        window.center()
-        window.isReleasedWhenClosed = false
-
-        super.init(window: window)
-        setupUI()
+        super.init(window: nil)
+        loadNib()
+        configureControls()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) not implemented")
     }
 
-    private func setupUI() {
-        guard let contentView = window?.contentView else { return }
-        setupHotkeySection(in: contentView)
-        setupBehaviorSection(in: contentView)
-        setupGeneralSection(in: contentView)
-        setupButtons(in: contentView)
+    private func loadNib() {
+        var topLevelObjects: NSArray?
+        guard let nib = NSNib(nibNamed: "PreferencesWindow", bundle: .main),
+              nib.instantiate(withOwner: self, topLevelObjects: &topLevelObjects) else {
+            fatalError("Failed to load PreferencesWindow nib")
+        }
     }
 
-    private func setupHotkeySection(in contentView: NSView) {
-        let hotkeyLabel = NSTextField(labelWithString: "Горячая клавиша")
-        hotkeyLabel.font = .systemFont(ofSize: 13, weight: .semibold)
-        hotkeyLabel.frame = NSRect(x: 20, y: 260, width: 200, height: 20)
-        contentView.addSubview(hotkeyLabel)
+    private func configureControls() {
+        window?.center()
+        window?.isReleasedWhenClosed = false
 
-        let recorderLabel = NSTextField(labelWithString: "Сочетание:")
-        recorderLabel.frame = NSRect(x: 20, y: 228, width: 80, height: 24)
-        recorderLabel.alignment = .right
-        contentView.addSubview(recorderLabel)
-
-        recorderView = ShortcutRecorderView(
-            frame: NSRect(x: 110, y: 226, width: 260, height: 28),
-            keyCode: currentKeyCode,
-            modifiers: currentModifiers
-        ) { [weak self] keyCode, modifiers in
+        recorderView.configure(keyCode: currentKeyCode, modifiers: currentModifiers) { [weak self] keyCode, modifiers in
             self?.currentKeyCode = keyCode
             self?.currentModifiers = modifiers
         }
-        contentView.addSubview(recorderView)
-
-        let hint = NSTextField(
-            labelWithString: "Нажмите и введите комбинацию — или нажмите и отпустите модификаторы, например \u{2325}\u{2318}"
-        )
-        hint.frame = NSRect(x: 110, y: 206, width: 320, height: 16)
-        hint.font = .systemFont(ofSize: 11)
-        hint.textColor = .secondaryLabelColor
-        contentView.addSubview(hint)
-
-        addSeparator(in: contentView, y: 190)
-    }
-
-    private func setupBehaviorSection(in contentView: NSView) {
-        let behaviorLabel = NSTextField(labelWithString: "Поведение")
-        behaviorLabel.font = .systemFont(ofSize: 13, weight: .semibold)
-        behaviorLabel.frame = NSRect(x: 20, y: 160, width: 200, height: 20)
-        contentView.addSubview(behaviorLabel)
-
-        switchLayoutCheckbox = NSButton(
-            checkboxWithTitle: "Переключать раскладку после конвертации",
-            target: nil,
-            action: nil
-        )
-        switchLayoutCheckbox.frame = NSRect(x: 110, y: 134, width: 310, height: 22)
         switchLayoutCheckbox.state = UserDefaults.standard.switchLayoutAfterConversion ? .on : .off
-        contentView.addSubview(switchLayoutCheckbox)
-
-        let switchHint = NSTextField(
-            labelWithString: "Автоматически активировать раскладку целевого языка, чтобы продолжать печатать"
-        )
-        switchHint.frame = NSRect(x: 126, y: 116, width: 300, height: 16)
-        switchHint.font = .systemFont(ofSize: 11)
-        switchHint.textColor = .secondaryLabelColor
-        contentView.addSubview(switchHint)
-
-        addSeparator(in: contentView, y: 102)
-    }
-
-    private func setupGeneralSection(in contentView: NSView) {
-        let generalLabel = NSTextField(labelWithString: "Общие")
-        generalLabel.font = .systemFont(ofSize: 13, weight: .semibold)
-        generalLabel.frame = NSRect(x: 20, y: 74, width: 200, height: 20)
-        contentView.addSubview(generalLabel)
-
-        launchAtLoginCheckbox = NSButton(checkboxWithTitle: "Запускать при входе в систему", target: nil, action: nil)
-        launchAtLoginCheckbox.frame = NSRect(x: 110, y: 48, width: 200, height: 22)
         launchAtLoginCheckbox.state = LaunchAtLogin.isEnabled ? .on : .off
-        contentView.addSubview(launchAtLoginCheckbox)
     }
 
-    private func setupButtons(in contentView: NSView) {
-        let saveButton = NSButton(title: "Сохранить", target: self, action: #selector(savePreferences))
-        saveButton.frame = NSRect(x: 330, y: 20, width: 90, height: 32)
-        saveButton.bezelStyle = .rounded
-        saveButton.keyEquivalent = "\r"
-        contentView.addSubview(saveButton)
-
-        let cancelButton = NSButton(title: "Отмена", target: self, action: #selector(cancelPreferences))
-        cancelButton.frame = NSRect(x: 230, y: 20, width: 90, height: 32)
-        cancelButton.bezelStyle = .rounded
-        cancelButton.keyEquivalent = "\u{1b}"
-        contentView.addSubview(cancelButton)
-    }
-
-    @objc private func savePreferences() {
+    @objc private func savePreferences(_ sender: Any?) {
         UserDefaults.standard.hotkeyKeyCode = currentKeyCode
         UserDefaults.standard.hotkeyModifiers = currentModifiers
 
@@ -138,15 +56,8 @@ class PreferencesWindowController: NSWindowController {
         window?.close()
     }
 
-    @objc private func cancelPreferences() {
+    @objc private func cancelPreferences(_ sender: Any?) {
         window?.close()
-    }
-
-    private func addSeparator(in contentView: NSView, y: CGFloat) {
-        let separator = NSBox()
-        separator.boxType = .separator
-        separator.frame = NSRect(x: 20, y: y, width: 400, height: 1)
-        contentView.addSubview(separator)
     }
 }
 
@@ -167,19 +78,45 @@ class ShortcutRecorderView: NSView {
     private var modifiers: UInt32
     private var isRecording = false
     private var peakCarbonModifiers: UInt32 = 0
-    private var displayField: NSTextField!
-    private let onChange: (UInt32, UInt32) -> Void
+    private var displayText: String
+    private var displayColor: NSColor = .labelColor
+    private var onChange: (UInt32, UInt32) -> Void
 
     init(frame: NSRect, keyCode: UInt32, modifiers: UInt32, onChange: @escaping (UInt32, UInt32) -> Void) {
         self.keyCode = keyCode
         self.modifiers = modifiers
+        self.displayText = ""
         self.onChange = onChange
         super.init(frame: frame)
         setupView()
     }
 
+    override init(frame: NSRect) {
+        self.keyCode = UserDefaults.standard.hotkeyKeyCode
+        self.modifiers = UserDefaults.standard.hotkeyModifiers
+        self.displayText = ""
+        self.onChange = { _, _ in }
+        super.init(frame: frame)
+        setupView()
+    }
+
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) not implemented")
+        self.keyCode = UserDefaults.standard.hotkeyKeyCode
+        self.modifiers = UserDefaults.standard.hotkeyModifiers
+        self.displayText = ""
+        self.onChange = { _, _ in }
+        super.init(coder: coder)
+        setupView()
+    }
+
+    /// Wire up the values and change callback after the view is loaded from a
+    /// nib, where init(coder:) cannot receive them.
+    func configure(keyCode: UInt32, modifiers: UInt32, onChange: @escaping (UInt32, UInt32) -> Void) {
+        self.keyCode = keyCode
+        self.modifiers = modifiers
+        self.onChange = onChange
+        displayText = shortcutString()
+        needsDisplay = true
     }
 
     override var acceptsFirstResponder: Bool { true }
@@ -188,14 +125,24 @@ class ShortcutRecorderView: NSView {
         wantsLayer = true
         layer?.cornerRadius = 6
         layer?.borderWidth = 1
+        layerContentsRedrawPolicy = .onSetNeedsDisplay
         applyLayerColors()
+        displayText = shortcutString()
+    }
 
-        displayField = NSTextField(labelWithString: shortcutString())
-        displayField.frame = bounds.insetBy(dx: 8, dy: 4)
-        displayField.autoresizingMask = [.width, .height]
-        displayField.alignment = .center
-        displayField.font = .systemFont(ofSize: 13)
-        addSubview(displayField)
+    override func draw(_ dirtyRect: NSRect) {
+        super.draw(dirtyRect)
+        let text = displayText as NSString
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.systemFont(ofSize: 24),
+            .foregroundColor: displayColor
+        ]
+        let size = text.size(withAttributes: attributes)
+        let point = NSPoint(
+            x: bounds.midX - size.width / 2,
+            y: bounds.midY - size.height / 2
+        )
+        text.draw(at: point, withAttributes: attributes)
     }
 
     /// Re-resolve the layer's background and border against the view's *own*
@@ -224,8 +171,9 @@ class ShortcutRecorderView: NSView {
         window?.makeFirstResponder(self)
         isRecording = true
         peakCarbonModifiers = 0
-        displayField.stringValue = "Введите сочетание..."
-        displayField.textColor = .systemOrange
+        displayText = "Введите сочетание..."
+        displayColor = .systemOrange
+        needsDisplay = true
         layer?.borderWidth = 2
         applyLayerColors()
     }
@@ -286,8 +234,9 @@ class ShortcutRecorderView: NSView {
         }
 
         isRecording = false
-        displayField.stringValue = shortcutString()
-        displayField.textColor = .labelColor
+        displayText = shortcutString()
+        displayColor = .labelColor
+        needsDisplay = true
         layer?.borderWidth = 1
         applyLayerColors()
 

@@ -1,13 +1,14 @@
 APP_NAME     = BilingualSwitcher
 BUNDLE_ID    = com.komandakycto.bilingual-switcher
-VERSION      ?= 1.2
+VERSION      ?= 1.3
 BUILD_DIR    = build
 APP_BUNDLE   = $(BUILD_DIR)/$(APP_NAME).app
 DMG_NAME     = $(APP_NAME).dmg
 ZIP_NAME     = $(APP_NAME).zip
 SOURCES      = $(wildcard Sources/*.swift)
 SPARKLE_DIR  = Vendor/Sparkle.framework
-COMMON_FLAGS = -O \
+COMMON_FLAGS = -module-name BilingualSwitcher \
+               -O \
                -framework Cocoa \
                -framework Carbon \
                -framework ServiceManagement \
@@ -40,7 +41,7 @@ all: $(APP_BUNDLE)
 
 # --- Build (universal binary) ---
 
-$(APP_BUNDLE): $(SOURCES) Info.plist Resources/AppIcon.icns Resources/MenuBarIcon.png $(SPARKLE_DIR)
+$(APP_BUNDLE): $(SOURCES) Info.plist Resources/AppIcon.icns Resources/MenuBarIcon.png Resources/PreferencesWindow.xib $(SPARKLE_DIR)
 	@rm -f /tmp/bilingual-switcher.log
 	@mkdir -p $(APP_BUNDLE)/Contents/MacOS
 	@mkdir -p $(APP_BUNDLE)/Contents/Resources
@@ -57,6 +58,7 @@ $(APP_BUNDLE): $(SOURCES) Info.plist Resources/AppIcon.icns Resources/MenuBarIco
 	@cp Resources/AppIcon.icns $(APP_BUNDLE)/Contents/Resources/AppIcon.icns
 	@cp Resources/MenuBarIcon.png $(APP_BUNDLE)/Contents/Resources/MenuBarIcon.png
 	@cp Resources/MenuBarIcon@2x.png $(APP_BUNDLE)/Contents/Resources/MenuBarIcon@2x.png 2>/dev/null || true
+	@ibtool --compile $(APP_BUNDLE)/Contents/Resources/PreferencesWindow.nib Resources/PreferencesWindow.xib
 	@rsync -a --delete $(SPARKLE_DIR) $(APP_BUNDLE)/Contents/Frameworks/
 	@if security find-identity -p codesigning 2>/dev/null | grep -q "$(SIGN_IDENTITY)"; then \
 		codesign --force --deep --sign "$(SIGN_IDENTITY)" $(APP_BUNDLE); \

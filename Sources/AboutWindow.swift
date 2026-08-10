@@ -9,7 +9,7 @@ class AboutWindowController: NSWindowController {
             backing: .buffered,
             defer: false
         )
-        window.title = "О программе Bilingual Switcher"
+        window.title = "О программе"
         window.center()
         window.isReleasedWhenClosed = false
 
@@ -48,8 +48,8 @@ class AboutWindowController: NSWindowController {
         contentView.addSubview(versionLabel)
 
         let descLabel = NSTextField(labelWithString:
-            "Конвертирует выделенный текст между любыми двумя\n"
-            + "установленными раскладками клавиатуры по горячей клавише."
+            "Конвертирует текст EN->RU и обратно\n"
+            + "по горячей клавише."
         )
         descLabel.font = .systemFont(ofSize: 11)
         descLabel.textColor = .secondaryLabelColor
