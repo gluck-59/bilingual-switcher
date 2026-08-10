@@ -5,12 +5,12 @@
     <link>https://github.com/gluck-59/bilingual-switcher</link>
     <language>en</language>
     <item>
-        <title>Version 1.1.0</title>
-        <sparkle:version>1.1.0</sparkle:version>
-        <sparkle:shortVersionString>1.1.0</sparkle:shortVersionString>
-        <enclosure url="https://github.com/gluck-59/bilingual-switcher/releases/download/v1.1.0/BilingualSwitcher.zip"
-                   sparkle:edSignature="gIaYFpXr297NXTBcuctR0hRNl8zX39l2zlTCvYx1gZFHV6F5w0UEo1XoKfPiZ5xUUSTw2hB/MbvJmhQyskrOAA=="
-                   length="1289365"
+        <title>Version 1.2</title>
+        <sparkle:version>1.2</sparkle:version>
+        <sparkle:shortVersionString>1.2</sparkle:shortVersionString>
+        <enclosure url="https://github.com/gluck-59/bilingual-switcher/releases/download/v1.2/BilingualSwitcher.zip"
+                   sparkle:edSignature="JyfYd4MNb+QtJiPIcKLyjE2luGkXExa+mkSk/4zRN6Z7Auf9gdGaNT/3+CmsDT8JN2wZsh7gEN+4fKuAndyJCA=="
+                   length="1295046"
                    type="application/octet-stream"/>
       </item>
     </channel>
