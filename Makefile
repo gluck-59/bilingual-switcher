@@ -60,11 +60,12 @@ $(APP_BUNDLE): $(SOURCES) Info.plist Resources/AppIcon.icns Resources/MenuBarIco
 	@cp Resources/MenuBarIcon@2x.png $(APP_BUNDLE)/Contents/Resources/MenuBarIcon@2x.png 2>/dev/null || true
 	@ibtool --compile $(APP_BUNDLE)/Contents/Resources/PreferencesWindow.nib Resources/PreferencesWindow.xib
 	@rsync -a --delete $(SPARKLE_DIR) $(APP_BUNDLE)/Contents/Frameworks/
+	@xattr -cr $(APP_BUNDLE) 2>/dev/null || true; find "$(APP_BUNDLE)" -name '._*' -delete 2>/dev/null || true
 	@if security find-identity -p codesigning 2>/dev/null | grep -q "$(SIGN_IDENTITY)"; then \
-		codesign --force --deep --sign "$(SIGN_IDENTITY)" $(APP_BUNDLE); \
+		codesign --force --deep --sign "$(SIGN_IDENTITY)" $(APP_BUNDLE) || { echo "ERROR: codesign failed with $(SIGN_IDENTITY)"; exit 1; }; \
 		echo "✓ Signed with $(SIGN_IDENTITY)"; \
 	else \
-		codesign --force --deep --sign - $(APP_BUNDLE); \
+		codesign --force --deep --sign - $(APP_BUNDLE) || { echo "ERROR: codesign failed (ad-hoc)"; exit 1; }; \
 		echo "⚠ $(SIGN_IDENTITY) not found — signed ad-hoc"; \
 	fi
 	@echo "✓ Built $(APP_BUNDLE) (universal)"

@@ -34,6 +34,16 @@ class PreferencesWindowController: NSWindowController {
     private func configureControls() {
         window?.center()
         window?.isReleasedWhenClosed = false
+        refreshControls()
+    }
+
+    /// Re-sync every control (recorder, checkboxes) from persisted state,
+    /// discarding any in-memory edits. Called once at init and again every time
+    /// the window is shown, so a cancelled session cannot leak stale values
+    /// into the next open (which made Cancel look like Save).
+    private func refreshControls() {
+        currentKeyCode = UserDefaults.standard.hotkeyKeyCode
+        currentModifiers = UserDefaults.standard.hotkeyModifiers
 
         recorderView.configure(keyCode: currentKeyCode, modifiers: currentModifiers) { [weak self] keyCode, modifiers in
             self?.currentKeyCode = keyCode
@@ -41,6 +51,13 @@ class PreferencesWindowController: NSWindowController {
         }
         switchLayoutCheckbox.state = UserDefaults.standard.switchLayoutAfterConversion ? .on : .off
         launchAtLoginCheckbox.state = LaunchAtLogin.isEnabled ? .on : .off
+    }
+
+    override func showWindow(_ sender: Any?) {
+        if window?.isVisible != true {
+            refreshControls()
+        }
+        super.showWindow(sender)
     }
 
     @objc private func savePreferences(_ sender: Any?) {
