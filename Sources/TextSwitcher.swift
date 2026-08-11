@@ -3,6 +3,10 @@ import Carbon
 
 class TextSwitcher {
 
+    /// Invoked on the main thread after every successfully typed conversion;
+    /// failure paths never reach it, so their feedback is unchanged.
+    var onConversionSucceeded: (() -> Void)?
+
     // MARK: - Tunables
 
     /// Maximum time to wait for the focused app to fill the pasteboard after
@@ -380,7 +384,12 @@ class TextSwitcher {
             Self.injectUnicode(converted)
         }
         Self.diag("injection done")
+        finishConversion(targetLayout: targetLayout)
+    }
 
+    /// Post-injection success tail: report success + optional layout switch.
+    private func finishConversion(targetLayout: LayoutInfo?) {
+        onConversionSucceeded?()
         if UserDefaults.standard.switchLayoutAfterConversion, let targetLayout {
             InputSourceSwitcher.switchTo(target: targetLayout)
         }
