@@ -5,7 +5,7 @@ extension TextSwitcher {
     /// Path to a plain-text diagnostic log appended on every conversion.
     /// Off by default — the log contains the user's selected text and the
     /// converted result. Enable per session for triage with:
-    ///   defaults write com.komandakycto.bilingual-switcher BILINGUAL_DIAG -bool YES
+    ///   defaults write com.gluck59.bilingual-switcher BILINGUAL_DIAG -bool YES
     static let diagLogPath = "/tmp/bilingual-switcher.log"
     static let diagEnabledKey = "BILINGUAL_DIAG"
 

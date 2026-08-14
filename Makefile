@@ -1,5 +1,5 @@
 APP_NAME     = BilingualSwitcher
-BUNDLE_ID    = com.komandakycto.bilingual-switcher
+BUNDLE_ID    = com.gluck59.bilingual-switcher
 VERSION      ?= 1.4
 BUILD_DIR    = build
 APP_BUNDLE   = $(BUILD_DIR)/$(APP_NAME).app
