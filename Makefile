@@ -1,6 +1,6 @@
 APP_NAME     = BilingualSwitcher
 BUNDLE_ID    = com.komandakycto.bilingual-switcher
-VERSION      ?= 1.3
+VERSION      ?= 1.4
 BUILD_DIR    = build
 APP_BUNDLE   = $(BUILD_DIR)/$(APP_NAME).app
 DMG_NAME     = $(APP_NAME).dmg
