@@ -11,9 +11,9 @@
     <key>CFBundleIdentifier</key>
     <string>com.gluck59.bilingual-switcher</string>
     <key>CFBundleVersion</key>
-    <string>1.4</string>
+    <string>1.5</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.4</string>
+    <string>1.5</string>
     <key>CFBundleExecutable</key>
     <string>BilingualSwitcher</string>
     <key>CFBundlePackageType</key>
