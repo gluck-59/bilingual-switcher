@@ -37,6 +37,15 @@ extension TextSwitcher {
         pasteboard.writeObjects(pasteboardItems)
     }
 
+    /// Whether the first Cmd+C produced convertible text. A changeCount tick
+    /// with no non-empty string is treated as "nothing copied" — some apps
+    /// (Telegram) write non-string data to the pasteboard in response to
+    /// Cmd+C even when nothing is selected, which would otherwise skip the
+    /// word-selection retry and make the hotkey look dead.
+    static func firstCopyProducedText(didChange: Bool, copiedText: String?) -> Bool {
+        didChange && copiedText?.isEmpty == false
+    }
+
     /// Wait on the main queue (without blocking it) for `pasteboard.changeCount`
     /// to differ from `initialChangeCount`, or for `timeout` to elapse.
     /// `completion` is always called exactly once, on the main queue, with

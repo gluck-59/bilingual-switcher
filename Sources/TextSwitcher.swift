@@ -140,33 +140,33 @@ class TextSwitcher {
         Self.simulateKeyStroke(keyCode: CGKeyCode(kVK_ANSI_C), flags: .maskCommand)
         Self.diag("posted Cmd+C, baselineChangeCount=\(baselineChangeCount)")
 
-        // Capture self strongly. The clipboard was just cleared; if a
-        // `[weak self]` early-returned because self deallocated mid-poll,
-        // the user's clipboard would stay cleared. TextSwitcher is owned by
-        // AppDelegate for the app's lifetime, so the only extra retention
-        // here is ~500 ms during the hotkey operation — no cycle, since
-        // this closure is not stored on self.
+        // Capture self strongly: if a `[weak self]` early-returned mid-poll
+        // the cleared clipboard would stay cleared. TextSwitcher lives for
+        // the app's lifetime, so the extra retention is ~500 ms — no cycle,
+        // since this closure is not stored on self.
         Self.pollForClipboardChange(
             initialChangeCount: baselineChangeCount,
             timeout: Self.copyTimeout,
             pollInterval: Self.copyPollInterval,
             pasteboard: pasteboard
         ) { didChange in
-            if didChange {
-                self.completeConversion(
-                    copied: true,
-                    copiedText: pasteboard.string(forType: .string),
-                    savedItems: savedItems,
-                    pasteboard: pasteboard,
-                    frontBundleID: frontBundleID
-                )
-            } else {
+            let copiedText = pasteboard.string(forType: .string)
+            guard Self.firstCopyProducedText(didChange: didChange, copiedText: copiedText) else {
+                // No convertible text (nothing copied, or non-string data, e.g. Telegram) — retry.
                 self.retryWithLastWordSelection(
                     savedItems: savedItems,
                     pasteboard: pasteboard,
                     frontBundleID: frontBundleID
                 )
+                return
             }
+            self.completeConversion(
+                copied: true,
+                copiedText: copiedText,
+                savedItems: savedItems,
+                pasteboard: pasteboard,
+                frontBundleID: frontBundleID
+            )
         }
     }
 

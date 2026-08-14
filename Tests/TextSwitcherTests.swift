@@ -368,6 +368,22 @@ final class TextSwitcherTests: XCTestCase {
         XCTAssertEqual(result, true)
     }
 
+    // MARK: - firstCopyProducedText
+
+    func testFirstCopyProducedText_TrueWhenChangedAndHasText() {
+        XCTAssertTrue(TextSwitcher.firstCopyProducedText(didChange: true, copiedText: "abc"))
+    }
+
+    func testFirstCopyProducedText_FalseWhenNoChange() {
+        XCTAssertFalse(TextSwitcher.firstCopyProducedText(didChange: false, copiedText: nil))
+        XCTAssertFalse(TextSwitcher.firstCopyProducedText(didChange: false, copiedText: "abc"))
+    }
+
+    func testFirstCopyProducedText_FalseWhenChangedButNoText() {
+        XCTAssertFalse(TextSwitcher.firstCopyProducedText(didChange: true, copiedText: nil))
+        XCTAssertFalse(TextSwitcher.firstCopyProducedText(didChange: true, copiedText: ""))
+    }
+
     // MARK: - WholeWordSelection.tokenRange
 
     func testTokenRange_SelectsWholeTokenWithPunctuation() {
