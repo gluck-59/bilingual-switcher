@@ -204,7 +204,7 @@ final class TextSwitcherTests: XCTestCase {
         )
     }
 
-    /// Hidden triage knob: `defaults write com.komandakycto.bilingual-switcher
+    /// Hidden triage knob: `defaults write com.gluck59.bilingual-switcher
     /// BILINGUAL_BACKEND backspaceFlood` forces the flood path in any app —
     /// useful when an unknown app gets the wrong default.
     func testPickStrategy_HonorsUserDefaultsOverride() {

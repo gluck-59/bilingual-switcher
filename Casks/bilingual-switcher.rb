@@ -10,6 +10,6 @@ cask "bilingual-switcher" do
   app "BilingualSwitcher.app"
 
   zap trash: [
-    "~/Library/Preferences/com.komandakycto.bilingual-switcher.plist",
+    "~/Library/Preferences/com.gluck59.bilingual-switcher.plist",
   ]
 end

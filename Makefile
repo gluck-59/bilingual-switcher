@@ -1,5 +1,5 @@
 APP_NAME     = BilingualSwitcher
-BUNDLE_ID    = com.komandakycto.bilingual-switcher
+BUNDLE_ID    = com.gluck59.bilingual-switcher
 VERSION      ?= 1.4
 BUILD_DIR    = build
 APP_BUNDLE   = $(BUILD_DIR)/$(APP_NAME).app
@@ -19,9 +19,14 @@ INSTALL_DIR  = /Applications
 
 # Code-signing identity. A stable self-signed "Code Signing" certificate keeps
 # the macOS Accessibility (TCC) grant valid across rebuilds — ad-hoc signing
-# changes the cdhash every build and silently revokes the grant. Falls back to
-# ad-hoc when the certificate is absent (e.g. CI), so the build never breaks.
+# changes the cdhash every build and silently revokes the grant. The build
+# FAILS when the certificate is absent: silently falling back to ad-hoc would
+# silently break the grant for users who already granted Accessibility.
 SIGN_IDENTITY ?= BilingualSwitcher Dev
+# Leaf SHA-1 of $(SIGN_IDENTITY). The Accessibility TCC grant is keyed to the
+# designated requirement "identifier <bundle-id> and certificate leaf = H<hash>";
+# any rebuild or release signed with a different cert silently revokes the grant.
+CERT_LEAF_HASH = b902cbab321847bd2493104dd0f1b102038d2d1f
 
 TESTS          = $(filter-out Tests/ASanRunner.swift,$(wildcard Tests/*.swift))
 SOURCES_NO_MAIN = $(filter-out Sources/main.swift,$(SOURCES))
@@ -65,8 +70,8 @@ $(APP_BUNDLE): $(SOURCES) Info.plist Resources/AppIcon.icns Resources/MenuBarIco
 		codesign --force --deep --sign "$(SIGN_IDENTITY)" $(APP_BUNDLE) || { echo "ERROR: codesign failed with $(SIGN_IDENTITY)"; exit 1; }; \
 		echo "✓ Signed with $(SIGN_IDENTITY)"; \
 	else \
-		codesign --force --deep --sign - $(APP_BUNDLE) || { echo "ERROR: codesign failed (ad-hoc)"; exit 1; }; \
-		echo "⚠ $(SIGN_IDENTITY) not found — signed ad-hoc"; \
+		echo "ERROR: $(SIGN_IDENTITY) not found — refusing ad-hoc (would silently revoke the Accessibility grant). Import the cert first."; \
+		exit 1; \
 	fi
 	@echo "✓ Built $(APP_BUNDLE) (universal)"
 
@@ -84,6 +89,13 @@ install: $(APP_BUNDLE)
 	@echo "Installing to $(INSTALL_DIR)..."
 	@rm -rf "$(INSTALL_DIR)/$(APP_NAME).app"
 	@cp -R $(APP_BUNDLE) "$(INSTALL_DIR)/"
+	@DR="$$(codesign -dr - "$(INSTALL_DIR)/$(APP_NAME).app" 2>&1)"; \
+	if echo "$$DR" | grep -q 'certificate leaf = H"$(CERT_LEAF_HASH)"' && echo "$$DR" | grep -q '"$(BUNDLE_ID)"'; then \
+		echo "✓ Grant identity verified: $(BUNDLE_ID) + cert $(CERT_LEAF_HASH)"; \
+	else \
+		echo "ERROR: installed app DR does not match the Accessibility grant identity (would prompt on launch). DR: $$DR"; \
+		exit 1; \
+	fi
 	@echo "✓ Installed to $(INSTALL_DIR)/$(APP_NAME).app"
 	@echo "  Run: open '$(INSTALL_DIR)/$(APP_NAME).app'"
 
