@@ -23,6 +23,10 @@ INSTALL_DIR  = /Applications
 # FAILS when the certificate is absent: silently falling back to ad-hoc would
 # silently break the grant for users who already granted Accessibility.
 SIGN_IDENTITY ?= BilingualSwitcher Dev
+# Leaf SHA-1 of $(SIGN_IDENTITY). The Accessibility TCC grant is keyed to the
+# designated requirement "identifier <bundle-id> and certificate leaf = H<hash>";
+# any rebuild or release signed with a different cert silently revokes the grant.
+CERT_LEAF_HASH = b902cbab321847bd2493104dd0f1b102038d2d1f
 
 TESTS          = $(filter-out Tests/ASanRunner.swift,$(wildcard Tests/*.swift))
 SOURCES_NO_MAIN = $(filter-out Sources/main.swift,$(SOURCES))
@@ -85,6 +89,13 @@ install: $(APP_BUNDLE)
 	@echo "Installing to $(INSTALL_DIR)..."
 	@rm -rf "$(INSTALL_DIR)/$(APP_NAME).app"
 	@cp -R $(APP_BUNDLE) "$(INSTALL_DIR)/"
+	@DR="$$(codesign -dr - "$(INSTALL_DIR)/$(APP_NAME).app" 2>&1)"; \
+	if echo "$$DR" | grep -q 'certificate leaf = H"$(CERT_LEAF_HASH)"' && echo "$$DR" | grep -q '"$(BUNDLE_ID)"'; then \
+		echo "✓ Grant identity verified: $(BUNDLE_ID) + cert $(CERT_LEAF_HASH)"; \
+	else \
+		echo "ERROR: installed app DR does not match the Accessibility grant identity (would prompt on launch). DR: $$DR"; \
+		exit 1; \
+	fi
 	@echo "✓ Installed to $(INSTALL_DIR)/$(APP_NAME).app"
 	@echo "  Run: open '$(INSTALL_DIR)/$(APP_NAME).app'"
 

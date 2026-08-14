@@ -9,6 +9,8 @@ macOS menu bar app that converts selected text between any two installed keyboar
 ## Working Rules
 
 - Do only what the user explicitly asked. No proactive commits, pushes, or other actions without an explicit request.
+- Always verify what was actually done by reading from disk (`defaults read`, TCC db, files) — never rely on memory, caches, or assumed state. Only reading.
+- The Accessibility (TCC) grant is keyed to the designated requirement `identifier "com.gluck59.bilingual-switcher" and certificate leaf = H"b902cbab..."`. Never regenerate/replace the signing certificate (the p12 is the single source of truth) and never change the bundle id — either silently revokes the grant and forces a re-grant.
 
 ## Build Commands
 
