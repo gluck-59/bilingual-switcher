@@ -19,8 +19,9 @@ INSTALL_DIR  = /Applications
 
 # Code-signing identity. A stable self-signed "Code Signing" certificate keeps
 # the macOS Accessibility (TCC) grant valid across rebuilds — ad-hoc signing
-# changes the cdhash every build and silently revokes the grant. Falls back to
-# ad-hoc when the certificate is absent (e.g. CI), so the build never breaks.
+# changes the cdhash every build and silently revokes the grant. The build
+# FAILS when the certificate is absent: silently falling back to ad-hoc would
+# silently break the grant for users who already granted Accessibility.
 SIGN_IDENTITY ?= BilingualSwitcher Dev
 
 TESTS          = $(filter-out Tests/ASanRunner.swift,$(wildcard Tests/*.swift))
@@ -65,8 +66,8 @@ $(APP_BUNDLE): $(SOURCES) Info.plist Resources/AppIcon.icns Resources/MenuBarIco
 		codesign --force --deep --sign "$(SIGN_IDENTITY)" $(APP_BUNDLE) || { echo "ERROR: codesign failed with $(SIGN_IDENTITY)"; exit 1; }; \
 		echo "✓ Signed with $(SIGN_IDENTITY)"; \
 	else \
-		codesign --force --deep --sign - $(APP_BUNDLE) || { echo "ERROR: codesign failed (ad-hoc)"; exit 1; }; \
-		echo "⚠ $(SIGN_IDENTITY) not found — signed ad-hoc"; \
+		echo "ERROR: $(SIGN_IDENTITY) not found — refusing ad-hoc (would silently revoke the Accessibility grant). Import the cert first."; \
+		exit 1; \
 	fi
 	@echo "✓ Built $(APP_BUNDLE) (universal)"
 
