@@ -32,8 +32,33 @@ jobs:
           brew install swiftlint
           make lint
 
+      - name: Import signing certificate
+        env:
+          CERT_P12: ${{ secrets.CERT_P12 }}
+          CERT_P12_PASSWORD: ${{ secrets.CERT_P12_PASSWORD }}
+        run: |
+          if [ -z "$CERT_P12" ]; then
+            echo "::error::CERT_P12 secret not set — release would be ad-hoc signed"
+            exit 1
+          fi
+          echo "$CERT_P12" | base64 --decode > /tmp/cert.p12
+          KEYCHAIN=build.keychain
+          KEYCHAIN_PASSWORD=buildkeychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import /tmp/cert.p12 -k "$KEYCHAIN" -P "$CERT_P12_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN" "$HOME/Library/Keychains/login.keychain-db"
+          rm -f /tmp/cert.p12
+
       - name: Build
         run: make VERSION=${{ steps.version.outputs.version }}
+
+      - name: Verify signing identity
+        run: |
+          codesign -dv build/BilingualSwitcher.app 2>&1 | grep -q 'Authority=BilingualSwitcher Dev' \
+            || { echo "ERROR: release not signed with BilingualSwitcher Dev"; exit 1; }
 
       - name: Create DMG
         run: make dmg
