@@ -63,8 +63,17 @@ jobs:
 
       - name: Verify signing identity
         run: |
-          codesign -dv build/BilingualSwitcher.app 2>&1 | grep -q 'Authority=BilingualSwitcher Dev' \
-            || { echo "ERROR: release not signed with BilingualSwitcher Dev"; exit 1; }
+          # codesign -dv does not print Authority= lines for self-signed certs, so
+          # check the designated requirement instead — it is what the Accessibility
+          # TCC grant is keyed to.
+          DR=$(codesign -dr - build/BilingualSwitcher.app 2>&1)
+          if echo "$DR" | grep -q 'certificate leaf = H"b902cbab321847bd2493104dd0f1b102038d2d1f"'; then
+            echo "OK: signed with BilingualSwitcher Dev"
+          else
+            SIG=$(codesign -dv build/BilingualSwitcher.app 2>&1 | tr '\n' ' ')
+            echo "::error::NOT signed with BilingualSwitcher Dev. Signature: $SIG. DR: $(echo "$DR" | tr '\n' ' ')"
+            exit 1
+          fi
 
       - name: Create DMG
         run: make dmg
