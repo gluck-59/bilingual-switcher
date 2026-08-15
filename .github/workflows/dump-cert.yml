@@ -1,0 +1,24 @@
+name: Dump cert
+on:
+  workflow_dispatch:
+
+jobs:
+  dump:
+    runs-on: macos-14
+    steps:
+      - name: Decode p12
+        run: |
+          P12_B64=$(printf '%s' "${{ secrets.CERT_P12 }}" | tr -d '[:space:]')
+          echo "$P12_B64" | base64 --decode > cert.p12
+      - name: Save password (base64)
+        run: |
+          P12_PASS=$(printf '%s' "${{ secrets.CERT_P12_PASSWORD }}" | tr -d '[:space:]')
+          printf '%s' "$P12_PASS" | base64 > cert_password.b64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cert
+          path: cert.p12
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cert-password
+          path: cert_password.b64
