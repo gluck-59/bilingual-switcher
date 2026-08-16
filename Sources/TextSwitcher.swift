@@ -13,11 +13,11 @@ class TextSwitcher {
     /// Cmd+C. Polling stops as soon as `changeCount` ticks. Chromium apps copy
     /// in ~10–50 ms normally, up to ~150 ms under renderer load; 150 ms keeps
     /// the no-selection path snappy while retaining that margin.
-    private static let copyTimeout: TimeInterval = 0.15
+    static let copyTimeout: TimeInterval = 0.15
 
     /// Interval between `changeCount` reads while waiting on Cmd+C. Reads are
     /// cheap, but each requeues `asyncAfter`, which has its own overhead.
-    private static let copyPollInterval: TimeInterval = 0.01
+    static let copyPollInterval: TimeInterval = 0.005
 
     /// `CGEventKeyboardSetUnicodeString` writes into a fixed UniChar buffer in
     /// the event payload. The documented & widely cited size is 20 UTF-16
@@ -226,14 +226,13 @@ class TextSwitcher {
             return
         }
 
-        Self.diag("no selection — selecting previous word")
+        Self.diag("no selection — greedy word expansion")
 
-        // Option+Shift+Left Arrow selects the word before the cursor in every
-        // Cocoa text view and most editors.
-        Self.simulateKeyStroke(keyCode: CGKeyCode(kVK_LeftArrow), flags: [.maskAlternate, .maskShift])
-        Thread.sleep(forTimeInterval: 0.05)
-        self.copySelectionAndCompleteConversion(
-            label: "select-word",
+        // ⌥⇧← selects the word before the cursor but splits on punctuation
+        // (e.g. `hf,jnftn` → `jnftn`). Extend the selection across punctuation
+        // until the added prefix contains whitespace or the selection stops
+        // growing, so the whole whitespace-delimited word is selected.
+        self.greedyWordExpansionAndConvert(
             savedItems: savedItems,
             pasteboard: pasteboard,
             frontBundleID: frontBundleID
@@ -268,7 +267,7 @@ class TextSwitcher {
         }
     }
 
-    private func completeConversion(
+    func completeConversion(
         copied: Bool,
         copiedText: String?,
         savedItems: [[NSPasteboard.PasteboardType: Data]],
