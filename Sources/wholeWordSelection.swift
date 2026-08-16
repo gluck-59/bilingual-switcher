@@ -1,3 +1,4 @@
+import AppKit
 import ApplicationServices
 
 /// Selects the whitespace-delimited word before the caret using the
@@ -13,23 +14,62 @@ enum WholeWordSelection {
     /// nil when the focused app does not expose the required AX attributes or
     /// when there is no word before the caret.
     static func selectWordBeforeCaret() -> String? {
-        guard let element = focusedElement() else { return nil }
-        guard let caretIndex = caretIndex(in: element) else { return nil }
-        guard let lineRange = lineRange(containing: caretIndex, in: element) else { return nil }
-        guard let lineText = lineText(for: lineRange, in: element) else { return nil }
+        guard let element = focusedElement() else {
+            TextSwitcher.diag("AX: no focused element")
+            return nil
+        }
+        guard let caretIndex = caretIndex(in: element) else {
+            TextSwitcher.diag("AX: no caret index")
+            return nil
+        }
+        TextSwitcher.diag("AX: caret=\(caretIndex)")
 
-        let caretInLine = caretIndex - lineRange.location
-        guard let token = tokenRange(for: lineText, caretInLine: caretInLine) else { return nil }
+        // Line-based approach: works in Cocoa apps (TextEdit, Telegram). Some
+        // browsers don't expose AXLineForIndex/AXRangeForLine, so this can
+        // fail there and we fall back to the full-text approach below.
+        if let lineRange = lineRange(containing: caretIndex, in: element),
+           let lineText = lineText(for: lineRange, in: element) {
+            TextSwitcher.diag("AX: line=\(lineRange.location),\(lineRange.length) text=\(lineText.prefix(80))")
+            let caretInLine = caretIndex - lineRange.location
+            guard let token = tokenRange(for: lineText, caretInLine: caretInLine) else { return nil }
+            let range = CFRange(location: lineRange.location + token.lowerBound, length: token.count)
+            guard select(range: range, in: element) else { return nil }
+            return String(Array(lineText)[token])
+        }
+        TextSwitcher.diag("AX: line-based failed")
 
-        var selection = CFRange(location: lineRange.location + token.lowerBound, length: token.count)
-        guard let selectionValue = AXValueCreate(.cfRange, &selection) else { return nil }
-        guard AXUIElementSetAttributeValue(
+        // Fallback: full text via AXValue. Browsers (Chromium/WebKit) expose
+        // the value even when the line-based parameterized attributes are
+        // missing, so the whitespace-delimited word is still selectable.
+        guard let fullText = fullText(of: element) else {
+            TextSwitcher.diag("AX: no AXValue")
+            return nil
+        }
+        TextSwitcher.diag("AX: value=\(fullText.prefix(80))")
+        guard let token = tokenRange(for: fullText, caretInLine: caretIndex) else { return nil }
+        guard select(range: CFRange(location: token.lowerBound, length: token.count), in: element) else { return nil }
+        return String(Array(fullText)[token])
+    }
+
+    /// Set the element's selected text range. Returns false when the app
+    /// rejects the range.
+    private static func select(range: CFRange, in element: AXUIElement) -> Bool {
+        var selection = range
+        guard let selectionValue = AXValueCreate(.cfRange, &selection) else { return false }
+        return AXUIElementSetAttributeValue(
             element,
             kAXSelectedTextRangeAttribute as CFString,
             selectionValue
-        ) == .success else { return nil }
+        ) == .success
+    }
 
-        return String(Array(lineText)[token])
+    /// The element's full text via `AXValue`, or nil when the element does
+    /// not expose it (e.g. a container without a value).
+    private static func fullText(of element: AXUIElement) -> String? {
+        var value: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(element, kAXValueAttribute as CFString, &value) == .success,
+              let value else { return nil }
+        return value as? String
     }
 
     /// The maximal run of non-whitespace characters ending at `caretInLine`
@@ -58,11 +98,24 @@ enum WholeWordSelection {
     private static func focusedElement() -> AXUIElement? {
         let systemWide = AXUIElementCreateSystemWide()
         var focused: CFTypeRef?
-        guard AXUIElementCopyAttributeValue(systemWide, kAXFocusedUIElementAttribute as CFString, &focused) == .success,
-              let focused else { return nil }
-        // CF types are toll-free bridged through CFTypeRef; the cast is safe.
+        let systemErr = AXUIElementCopyAttributeValue(systemWide, kAXFocusedUIElementAttribute as CFString, &focused)
+        TextSwitcher.diag("AX focusedElement: system err=\(systemErr.rawValue) value=\(focused != nil)")
+        if systemErr == .success, let focused {
+            // CF types are toll-free bridged through CFTypeRef; the cast is safe.
+            // swiftlint:disable:next force_cast
+            return focused as! AXUIElement
+        }
+
+        // Some apps (Chromium-based browsers) don't report a focused element
+        // to the system-wide query. Ask the frontmost app directly.
+        guard let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier else { return nil }
+        let app = AXUIElementCreateApplication(pid)
+        var appFocused: CFTypeRef?
+        let appErr = AXUIElementCopyAttributeValue(app, kAXFocusedUIElementAttribute as CFString, &appFocused)
+        TextSwitcher.diag("AX focusedElement: app err=\(appErr.rawValue) value=\(appFocused != nil)")
+        guard appErr == .success, let appFocused else { return nil }
         // swiftlint:disable:next force_cast
-        return focused as! AXUIElement
+        return appFocused as! AXUIElement
     }
 
     private static func caretIndex(in element: AXUIElement) -> Int? {

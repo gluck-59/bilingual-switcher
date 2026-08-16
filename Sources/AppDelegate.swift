@@ -66,26 +66,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         menu.addItem(NSMenuItem.separator())
 
-        let hotkeyInfo = NSMenuItem(title: hotkeyDescription(), action: nil, keyEquivalent: "")
+        let hotkeyInfo = NSMenuItem()
         hotkeyInfo.isEnabled = false
+        hotkeyInfo.attributedTitle = hotkeyAttributedDescription()
         menu.addItem(hotkeyInfo)
 
         menu.addItem(NSMenuItem.separator())
 
         let checkUpdatesItem = NSMenuItem(
-            title: "Проверить обновления...",
+            title: "Проверить обновления",
             action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)),
             keyEquivalent: ""
         )
         checkUpdatesItem.target = updaterController
         menu.addItem(checkUpdatesItem)
 
-        let prefsItem = NSMenuItem(title: "Настройки...", action: #selector(showPreferences), keyEquivalent: ",")
+        let prefsItem = NSMenuItem(title: "Настройки", action: #selector(showPreferences), keyEquivalent: ",")
         prefsItem.target = self
         menu.addItem(prefsItem)
 
         let aboutItem = NSMenuItem(
-            title: "О программе Bilingual Switcher",
+            title: "О программе",
             action: #selector(showAbout),
             keyEquivalent: ""
         )
@@ -94,17 +95,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         menu.addItem(NSMenuItem.separator())
 
-        let quitItem = NSMenuItem(title: "Выйти из Bilingual Switcher", action: #selector(quit), keyEquivalent: "q")
+        let quitItem = NSMenuItem(title: "Выход", action: #selector(quit), keyEquivalent: "q")
         quitItem.target = self
         menu.addItem(quitItem)
 
         statusItem.menu = menu
     }
 
-    private func hotkeyDescription() -> String {
-        let modifiers = UserDefaults.standard.hotkeyModifiers
-        let keyCode = UserDefaults.standard.hotkeyKeyCode
-        return "Горячая клавиша: \(HotkeyDisplayHelper.format(keyCode: keyCode, modifiers: modifiers))"
+    private func hotkeyAttributedDescription() -> NSAttributedString {
+        let prefix = "Горячая клавиша: "
+        let hotkey = HotkeyDisplayHelper.format(
+            keyCode: UserDefaults.standard.hotkeyKeyCode,
+            modifiers: UserDefaults.standard.hotkeyModifiers
+        )
+        let result = NSMutableAttributedString()
+        result.append(NSAttributedString(string: prefix, attributes: [
+            .font: NSFont.systemFont(ofSize: NSFont.systemFontSize)
+        ]))
+        result.append(NSAttributedString(string: hotkey, attributes: [
+            .font: NSFont.boldSystemFont(ofSize: 24)
+        ]))
+        return result
     }
 
     // MARK: - Status icon flash
