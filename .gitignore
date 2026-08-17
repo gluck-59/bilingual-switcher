@@ -25,3 +25,9 @@ DerivedData/
 
 # Internal plans
 docs/plans/
+
+# License signing private key (dev tool)
+scripts/license_private.key
+
+# License testing instructions + generated test key (not for git)
+TESTING_LICENSE.txt
