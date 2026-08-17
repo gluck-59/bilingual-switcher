@@ -172,10 +172,15 @@ class ShortcutRecorderView: NSView {
     /// appearance, and re-running from `viewDidChangeEffectiveAppearance`
     /// keeps it correct when the user toggles the system theme live.
     private func applyLayerColors() {
-        effectiveAppearance.performAsCurrentDrawingAppearance {
-            layer?.backgroundColor = NSColor.controlBackgroundColor.cgColor
-            let border = isRecording ? NSColor.systemOrange : NSColor.separatorColor
-            layer?.borderColor = border.cgColor
+        let update: () -> Void = {
+            self.layer?.backgroundColor = NSColor.controlBackgroundColor.cgColor
+            let border = self.isRecording ? NSColor.systemOrange : NSColor.separatorColor
+            self.layer?.borderColor = border.cgColor
+        }
+        if #available(macOS 11.0, *) {
+            effectiveAppearance.performAsCurrentDrawingAppearance(update)
+        } else {
+            update()
         }
     }
 

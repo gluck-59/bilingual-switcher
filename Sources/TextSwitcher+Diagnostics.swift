@@ -16,8 +16,13 @@ extension TextSwitcher {
         let url = URL(fileURLWithPath: diagLogPath)
         if FileManager.default.fileExists(atPath: diagLogPath) {
             if let handle = try? FileHandle(forWritingTo: url) {
-                _ = try? handle.seekToEnd()
-                try? handle.write(contentsOf: data)
+                if #available(macOS 10.15.4, *) {
+                    _ = try? handle.seekToEnd()
+                    try? handle.write(contentsOf: data)
+                } else {
+                    _ = handle.seekToEndOfFile()
+                    handle.write(data)
+                }
                 try? handle.close()
                 return
             }

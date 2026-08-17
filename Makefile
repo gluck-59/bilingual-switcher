@@ -52,8 +52,8 @@ $(APP_BUNDLE): $(SOURCES) Info.plist Resources/AppIcon.icns Resources/MenuBarIco
 	@mkdir -p $(APP_BUNDLE)/Contents/Resources
 	@mkdir -p $(APP_BUNDLE)/Contents/Frameworks
 	@mkdir -p $(BUILD_DIR)/arch
-	swiftc $(COMMON_FLAGS) -target arm64-apple-macos12 $(SOURCES) -o $(BUILD_DIR)/arch/$(APP_NAME)-arm64
-	swiftc $(COMMON_FLAGS) -target x86_64-apple-macos12 $(SOURCES) -o $(BUILD_DIR)/arch/$(APP_NAME)-x86_64
+	swiftc $(COMMON_FLAGS) -target arm64-apple-macos10.15 $(SOURCES) -o $(BUILD_DIR)/arch/$(APP_NAME)-arm64
+	swiftc $(COMMON_FLAGS) -target x86_64-apple-macos10.15 $(SOURCES) -o $(BUILD_DIR)/arch/$(APP_NAME)-x86_64
 	lipo -create $(BUILD_DIR)/arch/$(APP_NAME)-arm64 $(BUILD_DIR)/arch/$(APP_NAME)-x86_64 \
 		-output $(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
 	@rm -rf $(BUILD_DIR)/arch

@@ -47,7 +47,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 image.isTemplate = true
                 image.size = NSSize(width: 18, height: 18)
                 button.image = image
-            } else if let image = NSImage(
+            } else if #available(macOS 11.0, *), let image = NSImage(
                 systemSymbolName: "keyboard.badge.ellipsis",
                 accessibilityDescription: "ЯR Switcher"
             ) {
