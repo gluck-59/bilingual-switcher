@@ -1,4 +1,4 @@
-APP_NAME     = BilingualSwitcher
+APP_NAME     = YRSwitcher
 BUNDLE_ID    = com.gluck59.bilingual-switcher
 VERSION      ?= 1.5
 BUILD_DIR    = build
@@ -7,7 +7,7 @@ DMG_NAME     = $(APP_NAME).dmg
 ZIP_NAME     = $(APP_NAME).zip
 SOURCES      = $(wildcard Sources/*.swift)
 SPARKLE_DIR  = Vendor/Sparkle.framework
-COMMON_FLAGS = -module-name BilingualSwitcher \
+COMMON_FLAGS = -module-name YRSwitcher \
                -O \
                -framework Cocoa \
                -framework Carbon \

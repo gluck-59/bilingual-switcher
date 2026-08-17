@@ -1,4 +1,4 @@
-# Bilingual Switcher (форк)
+# ЯR Switcher
 
 Форк проекта [Bilingual Switcher](https://github.com/komandakycto/bilingual-switcher) от автора komandakycto, распространяется по лицензии [MIT](LICENSE).
 
@@ -6,12 +6,12 @@
 
 ## Скачать
 
-Скачайте последний релиз: [BilingualSwitcher.dmg](https://github.com/gluck-59/bilingual-switcher/releases/latest/download/BilingualSwitcher.dmg)
+Скачайте последний релиз: [YRSwitcher.dmg](https://github.com/gluck-59/yr-switcher/releases/latest/download/YRSwitcher.dmg)
 
 Приложение подписано self-signed (не нотаризовано). При первом запуске macOS может показать предупреждение Gatekeeper — разрешите через «Open Anyway» (Системные настройки → Конфиденциальность и безопасность) или выполните:
 
 ```bash
-xattr -cr /Applications/BilingualSwitcher.app
+xattr -cr /Applications/YRSwitcher.app
 ```
 
 ## Отличия от оригинала
@@ -32,10 +32,10 @@ xattr -cr /Applications/BilingualSwitcher.app
 Требуется Xcode Command Line Tools (`xcode-select --install`).
 
 ```bash
-git clone https://github.com/gluck-59/bilingual-switcher.git
-cd bilingual-switcher
+git clone https://github.com/gluck-59/yr-switcher.git
+cd yr-switcher
 make setup     # загрузка фреймворка Sparkle
-make           # сборка универсального бинарника → build/BilingualSwitcher.app
+make           # сборка универсального бинарника → build/YRSwitcher.app
 make install   # копирование в /Applications
 ```
 

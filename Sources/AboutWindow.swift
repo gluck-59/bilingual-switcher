@@ -33,7 +33,7 @@ class AboutWindowController: NSWindowController {
             contentView.addSubview(imageView)
         }
 
-        let nameLabel = NSTextField(labelWithString: "Bilingual Switcher")
+        let nameLabel = NSTextField(labelWithString: "ЯR Switcher")
         nameLabel.font = .systemFont(ofSize: 16, weight: .semibold)
         nameLabel.alignment = .center
         nameLabel.frame = NSRect(x: 20, y: 90, width: 280, height: 24)
@@ -65,7 +65,7 @@ class AboutWindowController: NSWindowController {
     }
 
     @objc private func openGitHub() {
-        if let url = URL(string: "https://github.com/gluck-59/bilingual-switcher") {
+        if let url = URL(string: "https://github.com/gluck-59/yr-switcher") {
             NSWorkspace.shared.open(url)
         }
     }

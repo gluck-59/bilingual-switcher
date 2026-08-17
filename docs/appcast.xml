@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
-    <title>Bilingual Switcher</title>
-    <link>https://github.com/gluck-59/bilingual-switcher</link>
-    <language>en</language>
+    <title>ЯR Switcher</title>
+    <link>https://github.com/gluck-59/yr-switcher</link>
+    <language>ru</language>
     <item>
         <title>Version 1.5</title>
         <sparkle:version>1.5</sparkle:version>
         <sparkle:shortVersionString>1.5</sparkle:shortVersionString>
-        <enclosure url="https://github.com/gluck-59/bilingual-switcher/releases/download/v1.5/BilingualSwitcher.zip"
+        <enclosure url="https://github.com/gluck-59/yr-switcher/releases/download/v1.5/YRSwitcher.zip"
                    sparkle:edSignature="yFFNJrHtAx6TMXealmCces/gp+w+myM72kRMbr6jif5TQrHloJfHEeXRcsVGdAJO9QR8sg4qPnSddd8iSG8pDw=="
                    length="1332708"
                    type="application/octet-stream"/>

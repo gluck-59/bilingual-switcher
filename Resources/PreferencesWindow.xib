@@ -5,7 +5,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="PreferencesWindowController" customModule="BilingualSwitcher" customModuleProvider="target">
+        <customObject id="-2" userLabel="File's Owner" customClass="PreferencesWindowController" customModule="YRSwitcher" customModuleProvider="target">
             <connections>
                 <outlet property="launchAtLoginCheckbox" destination="Chk-2" id="Out-Chk2"/>
                 <outlet property="recorderView" destination="Rec-1" id="Out-Rec"/>
@@ -23,7 +23,7 @@
                 <rect key="frame" x="0.0" y="0.0" width="300" height="220"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Rec-1" customClass="ShortcutRecorderView" customModule="BilingualSwitcher" customModuleProvider="target">
+                    <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Rec-1" customClass="ShortcutRecorderView" customModule="YRSwitcher" customModuleProvider="target">
                         <rect key="frame" x="14" y="144" width="266" height="56"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     </customView>

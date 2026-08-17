@@ -66,11 +66,11 @@ jobs:
           # codesign -dv does not print Authority= lines for self-signed certs, so
           # check the designated requirement instead — it is what the Accessibility
           # TCC grant is keyed to.
-          DR=$(codesign -dr - build/BilingualSwitcher.app 2>&1)
+          DR=$(codesign -dr - build/YRSwitcher.app 2>&1)
           if echo "$DR" | grep -q 'certificate leaf = H"b902cbab321847bd2493104dd0f1b102038d2d1f"'; then
             echo "OK: signed with BilingualSwitcher Dev"
           else
-            SIG=$(codesign -dv build/BilingualSwitcher.app 2>&1 | tr '\n' ' ')
+            SIG=$(codesign -dv build/YRSwitcher.app 2>&1 | tr '\n' ' ')
             echo "::error::NOT signed with BilingualSwitcher Dev. Signature: $SIG. DR: $(echo "$DR" | tr '\n' ' ')"
             exit 1
           fi
@@ -84,7 +84,7 @@ jobs:
       - name: Compute checksums
         run: |
           cd build
-          shasum -a 256 BilingualSwitcher.dmg BilingualSwitcher.zip > checksums.txt
+          shasum -a 256 YRSwitcher.dmg YRSwitcher.zip > checksums.txt
           cat checksums.txt
 
       - name: Sign ZIP with Sparkle EdDSA
@@ -95,7 +95,7 @@ jobs:
           KEY_FILE=$(mktemp)
           echo -n "$SPARKLE_EDDSA_KEY" > "$KEY_FILE"
           # sign_update outputs: sparkle:edSignature="SIG" length="LEN"
-          RAW=$(Vendor/bin/sign_update --ed-key-file "$KEY_FILE" build/BilingualSwitcher.zip)
+          RAW=$(Vendor/bin/sign_update --ed-key-file "$KEY_FILE" build/YRSwitcher.zip)
           rm -f "$KEY_FILE"
           # Parse signature and length from output
           ED_SIG=$(echo "$RAW" | sed 's/.*sparkle:edSignature="\([^"]*\)".*/\1/')
@@ -109,15 +109,15 @@ jobs:
           VERSION=${{ steps.version.outputs.version }}
           ED_SIG=${{ steps.sign.outputs.signature }}
           ED_LEN=${{ steps.sign.outputs.length }}
-          URL="https://github.com/gluck-59/bilingual-switcher/releases/download/${GITHUB_REF_NAME}/BilingualSwitcher.zip"
+          URL="https://github.com/gluck-59/yr-switcher/releases/download/${GITHUB_REF_NAME}/YRSwitcher.zip"
 
           cat > docs/appcast.xml << 'XMLEOF'
           <?xml version="1.0" encoding="utf-8"?>
           <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
             <channel>
-              <title>Bilingual Switcher</title>
-              <link>https://github.com/gluck-59/bilingual-switcher</link>
-              <language>en</language>
+              <title>ЯR Switcher</title>
+              <link>https://github.com/gluck-59/yr-switcher</link>
+              <language>ru</language>
             </channel>
           </rss>
           XMLEOF
@@ -128,21 +128,21 @@ jobs:
       - name: Update Homebrew cask
         run: |
           VERSION=${{ steps.version.outputs.version }}
-          SHA256=$(shasum -a 256 build/BilingualSwitcher.zip | cut -d' ' -f1)
-          URL="https://github.com/gluck-59/bilingual-switcher/releases/download/${GITHUB_REF_NAME}/BilingualSwitcher.zip"
+          SHA256=$(shasum -a 256 build/YRSwitcher.zip | cut -d' ' -f1)
+          URL="https://github.com/gluck-59/yr-switcher/releases/download/${GITHUB_REF_NAME}/YRSwitcher.zip"
 
           mkdir -p Casks
-          cat > Casks/bilingual-switcher.rb << EOF
-          cask "bilingual-switcher" do
+          cat > Casks/yr-switcher.rb << EOF
+          cask "yr-switcher" do
             version "${VERSION}"
             sha256 "${SHA256}"
 
             url "${URL}"
-            name "Bilingual Switcher"
+            name "ЯR Switcher"
             desc "Convert selected text between keyboard layouts with a hotkey"
-            homepage "https://github.com/gluck-59/bilingual-switcher"
+            homepage "https://github.com/gluck-59/yr-switcher"
 
-            app "BilingualSwitcher.app"
+            app "YRSwitcher.app"
 
             zap trash: [
               "~/Library/Preferences/com.gluck59.bilingual-switcher.plist",
@@ -172,14 +172,14 @@ jobs:
           APPCAST_BLOB=$(gh api "repos/${REPO}/git/blobs" --method POST \
             -f content="$(base64 -i docs/appcast.xml)" -f encoding=base64 --jq '.sha')
           CASK_BLOB=$(gh api "repos/${REPO}/git/blobs" --method POST \
-            -f content="$(base64 -i Casks/bilingual-switcher.rb)" -f encoding=base64 --jq '.sha')
+            -f content="$(base64 -i Casks/yr-switcher.rb)" -f encoding=base64 --jq '.sha')
 
           # New tree layering both blobs onto the base tree.
           TREE_SHA=$(jq -n \
             --arg base "$BASE_TREE" --arg appcast "$APPCAST_BLOB" --arg cask "$CASK_BLOB" \
             '{base_tree: $base, tree: [
                {path: "docs/appcast.xml",            mode: "100644", type: "blob", sha: $appcast},
-               {path: "Casks/bilingual-switcher.rb", mode: "100644", type: "blob", sha: $cask}
+               {path: "Casks/yr-switcher.rb", mode: "100644", type: "blob", sha: $cask}
              ]}' | gh api "repos/${REPO}/git/trees" --method POST --input - --jq '.sha')
 
           # Single commit on top of the current tip.
@@ -198,8 +198,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create "$GITHUB_REF_NAME" \
-            build/BilingualSwitcher.dmg \
-            build/BilingualSwitcher.zip \
+            build/YRSwitcher.dmg \
+            build/YRSwitcher.zip \
             build/checksums.txt \
-            --title "Bilingual Switcher ${{ steps.version.outputs.version }}" \
+            --title "ЯR Switcher ${{ steps.version.outputs.version }}" \
             --generate-notes

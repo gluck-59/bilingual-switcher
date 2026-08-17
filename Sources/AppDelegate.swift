@@ -40,8 +40,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         if let button = statusItem.button {
-            button.toolTip = "Bilingual Switcher"
-            button.setAccessibilityLabel("Bilingual Switcher")
+            button.toolTip = "ЯR Switcher"
+            button.setAccessibilityLabel("ЯR Switcher")
             if let iconPath = Bundle.main.path(forResource: "MenuBarIcon", ofType: "png"),
                let image = NSImage(contentsOfFile: iconPath) {
                 image.isTemplate = true
@@ -49,12 +49,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 button.image = image
             } else if let image = NSImage(
                 systemSymbolName: "keyboard.badge.ellipsis",
-                accessibilityDescription: "Bilingual Switcher"
+                accessibilityDescription: "ЯR Switcher"
             ) {
                 image.isTemplate = true
                 button.image = image
             } else {
-                button.title = "BS"
+                button.title = "ЯR"
             }
         }
 

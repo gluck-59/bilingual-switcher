@@ -3,8 +3,8 @@
 ## Build from source
 
 ```bash
-git clone https://github.com/komandakycto/bilingual-switcher.git
-cd bilingual-switcher
+git clone https://github.com/gluck-59/yr-switcher.git
+cd yr-switcher
 make setup   # downloads Sparkle framework
 make         # builds the .app bundle
 make run     # builds and launches
@@ -13,7 +13,7 @@ make run     # builds and launches
 ## Run tests
 
 ```bash
-make test        # XCTest suite (47 tests)
+make test        # XCTest suite (172 tests)
 make test-asan   # same tests with AddressSanitizer (requires native arm64)
 make lint        # SwiftLint in --strict mode (enforced in CI)
 ```
