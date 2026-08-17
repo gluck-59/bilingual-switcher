@@ -1,8 +1,8 @@
 cask "yr-switcher" do
-  version "1.5"
-  sha256 "e9f04e28d44f0f515285e6af1f569df932d7350f5e9398954e492a909e8a5424"
+  version "2.0"
+  sha256 "6edd35ef6d5d3cd8d725d7e4e275fb9b24b5639b7c8a3e46991d1b09876ab4e1"
 
-  url "https://github.com/gluck-59/yr-switcher/releases/download/v1.5/YRSwitcher.zip"
+  url "https://github.com/gluck-59/yr-switcher/releases/download/v2.0/YRSwitcher.zip"
   name "ЯR Switcher"
   desc "Convert selected text between keyboard layouts with a hotkey"
   homepage "https://github.com/gluck-59/yr-switcher"
