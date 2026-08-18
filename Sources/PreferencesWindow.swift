@@ -151,7 +151,7 @@ class ShortcutRecorderView: NSView {
         super.draw(dirtyRect)
         let text = displayText as NSString
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: 24),
+            .font: NSFont.systemFont(ofSize: 18),
             .foregroundColor: displayColor
         ]
         let size = text.size(withAttributes: attributes)
@@ -174,7 +174,7 @@ class ShortcutRecorderView: NSView {
     private func applyLayerColors() {
         let update: () -> Void = {
             self.layer?.backgroundColor = NSColor.controlBackgroundColor.cgColor
-            let border = self.isRecording ? NSColor.systemOrange : NSColor.separatorColor
+            let border = self.isRecording ? NSColor.systemGreen : NSColor.separatorColor
             self.layer?.borderColor = border.cgColor
         }
         if #available(macOS 11.0, *) {
@@ -193,8 +193,8 @@ class ShortcutRecorderView: NSView {
         window?.makeFirstResponder(self)
         isRecording = true
         peakCarbonModifiers = 0
-        displayText = "Введите сочетание..."
-        displayColor = .systemOrange
+        displayText = "Выберите сочетание клавиш"
+        displayColor = .systemGreen
         needsDisplay = true
         layer?.borderWidth = 2
         applyLayerColors()
